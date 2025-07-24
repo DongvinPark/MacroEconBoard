@@ -16,19 +16,19 @@ const CandleChart: React.FC = () => {
       },
     });
 
-    // Correct method for v5
     const candleSeries = chart.addCandlestickSeries({
-      upColor: "#26a69a",
-      downColor: "#ef5350",
-      borderDownColor: "#ef5350",
-      borderUpColor: "#26a69a",
-      wickDownColor: "#ef5350",
-      wickUpColor: "#26a69a",
+      upColor: "#ef5350",            // Bullish body (red)
+      downColor: "#2196f3",          // Bearish body (blue)
+      borderUpColor: "#ef5350",      // Bullish border
+      borderDownColor: "#2196f3",    // Bearish border
+      wickUpColor: "#ef5350",        // Bullish wick (match body)
+      wickDownColor: "#2196f3",      // Bearish wick (match body)
     });
+
 
     candleSeries.setData([
       { time: "2023-07-01", open: 100, high: 110, low: 90, close: 105 },
-      { time: "2023-07-02", open: 105, high: 115, low: 100, close: 110 },
+      { time: "2023-07-02", open: 105, high: 115, low: 100, close: 99 },
       { time: "2023-07-03", open: 110, high: 120, low: 105, close: 115 },
     ]);
 
