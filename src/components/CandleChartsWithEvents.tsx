@@ -38,18 +38,20 @@ const CandleChartsWithEvent: React.FC = () => {
       { time: '2023-07-04', open: 115, high: 125, low: 110, close: 120 },
     ]);
 
+    // 이벤트들을 이런 식으로 추가해볼 수도 있다.
+    // 결국 지표나 지수 데이터와 이벤트 데이터는 별도로 관리해야 한다.
     const markerSeries = [
       {
         time: '2023-07-02',
         position: 'aboveBar',
-        color: 'red',
+        color: 'black',
         shape: 'circle',
         text: 'FOMC 발표',
       },
       {
         time: '2023-07-03',
         position: 'aboveBar',
-        color: 'orange',
+        color: '',
         shape: 'circle',
         text: '중국 CPI 발표',
       },
