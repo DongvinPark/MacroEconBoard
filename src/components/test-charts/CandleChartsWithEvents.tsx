@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { createChart, CrosshairMode } from "lightweight-charts";
+import { toSeriesMarkers } from "../../utils/charts"
 
 const CandleChartsWithEvent: React.FC = () => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
@@ -57,8 +58,10 @@ const CandleChartsWithEvent: React.FC = () => {
       },
     ];
 
+    const convertedMarkerSeries = toSeriesMarkers(markerSeries);
+
     // Set event markers
-    candleSeries.setMarkers(markerSeries);
+    candleSeries.setMarkers(convertedMarkerSeries);
 
     const tooltip = tooltipRef.current;
     tooltip.style.display = "none";
