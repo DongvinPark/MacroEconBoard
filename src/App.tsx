@@ -4,6 +4,7 @@ import LineChart from "./components/test-charts/LineChart";
 import CandleChartsWithEvent from "./components/test-charts/CandleChartsWithEvents";
 import CheckBox from "../src/components/index-selection/CheckBox"
 import DurationSelection from "./components/index-selection/Duration";
+import ShowGraph from "./components/index-selection/ShowGraphs";
 
 function App() {
   return (
@@ -15,7 +16,11 @@ function App() {
     <br></br>
     <br></br>
     <DurationSelection />
-    <h2>여기는 그래프 그리기 버튼 컴포넌트</h2>
+    <br></br>
+    <ShowGraph />
+    <br></br>
+    <br></br>
+
     <div>
       <h2 style={{ color: "green" }}>Test Candle Chart</h2>
       <CandleChart />
