@@ -1,5 +1,6 @@
 
 function CheckBox() {
+    // TODO 인풋 태그들의 내용몰들은 나중에 수정한다.
   return (
     <div>
       {/* 브랜드별 */}
