@@ -3,85 +3,72 @@ function CheckBox() {
     // TODO 인풋 태그들의 내용몰들은 나중에 수정한다.
   return (
     <div>
-      {/* 브랜드별 */}
+      {/* 주석공간 */}
+      <h3>한국</h3>
       <fieldset>
-        <legend>브랜드별</legend>
+        <legend>주가지수</legend>
         <label>
-          <input type="checkbox" /> 갤럭시북5 프로
+          <input type="checkbox" /> KOSPI
         </label>
+        <br></br>
         <label>
-          <input type="checkbox" /> 2025 그램 프로16
-        </label>
-        <label>
-          <input type="checkbox" /> 아이디어패드
-        </label>
-        <label>
-          <input type="checkbox" /> GF시리즈
-        </label>
-        <label>
-          <input type="checkbox" /> 오픈
+          <input type="checkbox" /> KOSDAQ
         </label>
       </fieldset>
 
-      {/* 화면 크기대 */}
+      {/* 주석공간 */}
       <fieldset>
-        <legend>화면 크기대</legend>
+        <legend>금리</legend>
         <label>
-          <input type="checkbox" /> 14인치대
+          <input type="checkbox" /> 한국은행 기준금리
         </label>
+        <br></br>
         <label>
-          <input type="checkbox" /> 15인치대
+          <input type="checkbox" /> 국채 3년물
         </label>
+        <br></br>
         <label>
-          <input type="checkbox" /> 16인치대
+          <input type="checkbox" /> 국채 5년물
         </label>
+        <br></br>
         <label>
-          <input type="checkbox" /> 17인치대
-        </label>
-        <label>
-          <input type="checkbox" /> 18인치 이상
+          <input type="checkbox" /> 국채 10년물
         </label>
       </fieldset>
 
-      {/* CPU 종류 */}
+          {/* 주석공간 */}
+      <h3>미국</h3>
       <fieldset>
-        <legend>CPU 종류</legend>
+        <legend>주가지수</legend>
         <label>
-          <input type="checkbox" /> 코어i5
+          <input type="checkbox" /> S&P 500
         </label>
+        <br></br>
         <label>
-          <input type="checkbox" /> 코어 울트라5
+          <input type="checkbox" /> NASDAQ composites
         </label>
+        <br></br>
         <label>
-          <input type="checkbox" /> 코어 울트라7
-        </label>
-        <label>
-          <input type="checkbox" /> 라이젠5
-        </label>
-        <label>
-          <input type="checkbox" /> 라이젠5(ZEN3)
+          <input type="checkbox" /> Dow Jones Industrial Avg
         </label>
       </fieldset>
 
-      {/* 램 */}
+      {/* 주석공간 */}
       <fieldset>
-        <legend>램</legend>
+        <legend>금리</legend>
         <label>
-          <input type="checkbox" /> 8GB
+          <input type="checkbox" /> 미국기준금리(Federal Funds Rate)
         </label>
+        <br></br>
         <label>
-          <input type="checkbox" /> 16GB
+          <input type="checkbox" /> 미국 국채 2년물
         </label>
+        <br></br>
         <label>
-          <input type="checkbox" /> 32GB
-        </label>
-        <label>
-          <input type="checkbox" /> 64GB
-        </label>
-        <label>
-          <input type="checkbox" /> 128GB
+          <input type="checkbox" /> 미국 국채 10년물
         </label>
       </fieldset>
+    
     </div>
   );
 }

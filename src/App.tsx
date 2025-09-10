@@ -10,7 +10,7 @@ function App() {
   return (
   <div>
     <h1>Macro Economy Board</h1>
-    <h2>여러가지 지표들을 한번에 비교하고,</h2>
+    <h2>국가별 경제 지표들을 한번에 비교하고,</h2>
     <h2>최적의 투자 타이밍을 잡으세요!</h2>
     <br></br>
     <br></br>
