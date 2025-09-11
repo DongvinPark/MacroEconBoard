@@ -1,7 +1,7 @@
 
 function ShowGraph(){
     return(
-        <button>Show Graph</button>
+        <button>그래프 그리기!</button>
     );
 }
 

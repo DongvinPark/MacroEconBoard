@@ -15,6 +15,7 @@ function App() {
     <br></br>
     <br></br>
 
+    <h2>지표를 선택해주세요(최대 6개)</h2>
     <CheckBox />
     <br></br>
     <br></br>
