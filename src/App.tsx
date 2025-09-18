@@ -10,8 +10,7 @@ function App() {
   return (
   <div>
     <h1>Macro Economy Board</h1>
-    <h2>국가별 경제 지표들을 한번에 비교하고,</h2>
-    <h2>최적의 투자 타이밍을 잡으세요!</h2>
+    <h2>원하는 경제지표들을 한 번에!</h2>
     <br></br>
     <br></br>
 
@@ -36,6 +35,9 @@ function App() {
 
       <h2 style={{ color: "green" }}>Test Candle + Events Chart</h2>
       <CandleChartsWithEvent />
+    </div>
+    <div>
+      <h3>새로운 기능과 지표를 추가하고 싶다면...? 👉 dongvin99@naver.com</h3>
     </div>
   </div>
 );
