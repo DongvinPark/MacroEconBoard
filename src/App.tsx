@@ -5,6 +5,7 @@ import CandleChartsWithEvent from "./components/test-charts/CandleChartsWithEven
 import CheckBox from "../src/components/index-selection/CheckBox"
 import DurationSelection from "./components/index-selection/Duration";
 import ShowGraph from "./components/index-selection/ShowGraphs";
+import SelectLang from "./components/languiage/SelectLang";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
     <h1>Macro Economy Board</h1>
     <h2>원하는 경제지표들을 한 번에!</h2>
     <br></br>
+    <SelectLang />
     <br></br>
 
     <h2>지표를 선택해주세요(최대 6개)</h2>
