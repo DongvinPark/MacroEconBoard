@@ -10,7 +10,7 @@ import { loadAppMeta } from "./utils/AppMeta";
 
 function App() {
 
-  loadAppMeta();
+  let meta  = loadAppMeta();
 
   return (
   <div>
