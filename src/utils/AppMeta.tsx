@@ -48,12 +48,12 @@ export type AppMeta = {
 
 // 아래의 함수는 Promise<any>를 리턴한다.
 // 이 함수를 호출하는 쪽에서 Async 한 처리를 해줘야 한다.
-export async function loadAppMeta() {
+export async function loadAppMeta(): Promise<AppMeta> {
     const response = await fetch("http://localhost:8554/meta/app/app-meta-000.json");
     if (!response.ok){
         throw new Error(`HTTP error! status : ${response.status}`);
     }
     const data = await response.json();
     console.log(data);
-    return data;
+    return data as Promise<AppMeta>;
 }

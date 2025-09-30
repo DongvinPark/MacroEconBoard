@@ -10,7 +10,11 @@ import { loadAppMeta } from "./utils/AppMeta";
 
 function App() {
 
-  let meta  = loadAppMeta();
+  // TODO - 테스트용
+  (async () => {
+    const meta = await loadAppMeta();
+    console.log(meta["contents-text"]["ko"].catchphrase);
+  })();
 
   return (
   <div>
