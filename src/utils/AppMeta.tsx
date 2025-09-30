@@ -30,7 +30,6 @@ export type UiContentText = {
   "duration-year-word": string[];
   "show-graph": string;
   "customer-service": string;
-  index: Record<string, Category[]>;
 };
 
 export type ContentsTextWithTranslation = Record<string, UiContentText>;
@@ -43,6 +42,7 @@ export type AppMeta = {
     title: string;
     "country-language": CountryLanguageMap;
     "contents-text": ContentsTextWithTranslation;
+    index: Record<string, Category[]>;
 }
 // ex : {"ko" : UiContentText }
 

@@ -6,7 +6,7 @@ import CheckBox from "../src/components/index-selection/CheckBox"
 import DurationSelection from "./components/index-selection/Duration";
 import ShowGraph from "./components/index-selection/ShowGraphs";
 import SelectLang from "./components/languiage/SelectLang";
-import { loadAppMeta } from "./utils/AppMeta";
+import { loadAppMeta, type Category } from "./utils/AppMeta";
 
 function App() {
 
@@ -14,6 +14,7 @@ function App() {
   (async () => {
     const meta = await loadAppMeta();
     console.log(meta["contents-text"]["ko"].catchphrase);
+    console.log(meta.index["kr"][0].items[0].name["ko"])
   })();
 
   return (
