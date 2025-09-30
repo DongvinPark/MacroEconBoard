@@ -6,8 +6,12 @@ import CheckBox from "../src/components/index-selection/CheckBox"
 import DurationSelection from "./components/index-selection/Duration";
 import ShowGraph from "./components/index-selection/ShowGraphs";
 import SelectLang from "./components/languiage/SelectLang";
+import { loadAppMeta } from "./utils/AppMeta";
 
 function App() {
+
+  loadAppMeta();
+
   return (
   <div>
     <h1>Macro Economy Board</h1>
