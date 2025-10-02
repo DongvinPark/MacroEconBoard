@@ -22,8 +22,13 @@ function App() {
   // default 언어는 한국어
   const [lang, setLang] = useState<string>("");
 
-  useEffect(
+  useEffect( // useEffect는 렌더링 이외의 작업(fetch 등)에 사용하는 리액트 훅이다.
+    // useEffect 내부에서 호출된 () => {...}, [] 는
+    // Run this effect once, when the component first mounts. 라는 뜻이다.
     () => {
+      // (async () => {...})();는
+      // Immediately Invoked Async Function Expression (IIAFE) 다.
+      // async task를 수행하는 함수를 정의하는 즉시 실행되게 만든다.
       (async () => {
         const loadedMeta = await loadAppMeta();
         setMeta(loadedMeta);
@@ -42,6 +47,11 @@ function App() {
     <h1>{meta.title}</h1>
     <h2>{currentText.catchphrase}</h2>
     <br></br>
+    {/*
+        SelectLang.tsx 에서 정의 해놓은 Props 타입의 property 필드들과,
+        바로 아래의 코드와 같이
+        SelectLang 태그를 실제로 호출하면서 넘겨주는 property 들의 이름이 일치해야 한다.
+    */}
     <SelectLang
       appMeta={meta}
       availableLangs={Object.keys(meta["contents-text"])}
@@ -54,8 +64,7 @@ function App() {
       currentText["select-index-words"][0] +
       meta["max-index-cnt"] +
       currentText["select-index-words"][1]
-      }
-    </h2>
+    }</h2>
     <CheckBox />
     <br></br>
     <br></br>

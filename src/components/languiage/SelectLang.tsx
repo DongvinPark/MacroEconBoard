@@ -7,19 +7,25 @@ type SelectLangProps = {
     onChangeLang: (newLang: string) => void;
 }
 
-function SelectLang({ appMeta, availableLangs, currentLang, onChangeLang }: SelectLangProps) {
-
+function SelectLang(
+    { appMeta, availableLangs, currentLang, onChangeLang }: SelectLangProps
+) {
     return (
       <div>
-        {availableLangs.map((lang) => (
-          <button
-            key={lang}
-            onClick={() => onChangeLang(lang)}
-            style={{ fontWeight: lang === currentLang ? "bold" : "normal" }}
-          >
-            {appMeta['contents-text'][lang].native}
-          </button>
-        ))}
+        {
+        // appMeta 안에 정의된 언어팩에 맞춰서 버튼목록이 뜨게 만든다.
+        availableLangs.map(
+            (lang) => (
+                <button
+                    key={lang}
+                    onClick={() => onChangeLang(lang)}
+                    style={{ fontWeight: lang === currentLang ? "bold" : "normal" }}
+                >
+                    {appMeta['contents-text'][lang].native}
+                </button>
+            )
+        )
+        }
       </div>
     );
 }  
