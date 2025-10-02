@@ -42,7 +42,12 @@ function App() {
     <h1>{meta.title}</h1>
     <h2>{currentText.catchphrase}</h2>
     <br></br>
-    <SelectLang />
+    <SelectLang
+      appMeta={meta}
+      availableLangs={Object.keys(meta["contents-text"])}
+      currentLang={lang}
+      onChangeLang={(newLang) => setLang(newLang)}
+    />
     <br></br>
 
     <h2>{
