@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import CandleChart from "./components/test-charts/CandleChart";
 import LineChart from "./components/test-charts/LineChart";
 import CandleChartsWithEvent from "./components/test-charts/CandleChartsWithEvents";
@@ -6,26 +6,51 @@ import CheckBox from "../src/components/index-selection/CheckBox"
 import DurationSelection from "./components/index-selection/Duration";
 import ShowGraph from "./components/index-selection/ShowGraphs";
 import SelectLang from "./components/languiage/SelectLang";
-import { loadAppMeta, type Category } from "./utils/AppMeta";
+import { loadAppMeta, type AppMeta, type Category, type ContentsTextWithTranslation, type CountryLanguageMap, type UiContentText } from "./utils/AppMeta";
 
 function App() {
 
   // TODO - 테스트용
-  (async () => {
-    const meta = await loadAppMeta();
-    console.log(meta["contents-text"]["ko"].catchphrase);
-    console.log(meta.index["kr"][0].items[0].name["ko"])
-  })();
+  // (async () => {
+  //   const meta = await loadAppMeta();
+  //   console.log(meta["contents-text"]["ko"].catchphrase);
+  //   console.log(meta.index["kr"][0].items[0].name["ko"])
+  // })();
+
+  const [meta, setMeta] = useState<AppMeta | null>(null);
+
+  // default 언어는 한국어
+  const [lang, setLang] = useState<string>("");
+
+  useEffect(
+    () => {
+      (async () => {
+        const loadedMeta = await loadAppMeta();
+        setMeta(loadedMeta);
+      })();
+    }, []
+  );
+
+  if(!meta) return (<div>Loading...</div>);
+
+  const uiContentTextMap: ContentsTextWithTranslation = meta["contents-text"];
+  // default 언어는 한국어(ko).
+  const currentText: UiContentText = uiContentTextMap[lang] ?? uiContentTextMap["ko"];
 
   return (
   <div>
-    <h1>Macro Economy Board</h1>
-    <h2>원하는 경제지표들을 한 번에!</h2>
+    <h1>{meta.title}</h1>
+    <h2>{currentText.catchphrase}</h2>
     <br></br>
     <SelectLang />
     <br></br>
 
-    <h2>지표를 선택해주세요(최대 6개)</h2>
+    <h2>{
+      currentText["select-index-words"][0] +
+      meta["max-index-cnt"] +
+      currentText["select-index-words"][1]
+      }
+    </h2>
     <CheckBox />
     <br></br>
     <br></br>
@@ -48,7 +73,7 @@ function App() {
       <CandleChartsWithEvent />
     </div>
     <div>
-      <h3>새로운 기능과 지표를 추가하고 싶다면...? 👉 dongvin99@naver.com</h3>
+      <h3>{currentText["customer-service"] + "\t" + meta["developer-email"]}</h3>
     </div>
   </div>
 );

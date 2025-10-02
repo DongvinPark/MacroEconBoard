@@ -24,7 +24,7 @@ export type Category = {
 export type UiContentText = {
   native: string; // 언어명 자기 표현
   catchphrase: string;
-  "select-index": string;
+  "select-index-words": string[];
   "select-duration": string;
   country: Record<string, string>; // "kr": "한국", "us": "미국"
   "duration-year-word": string[];
@@ -40,6 +40,7 @@ export type AppMeta = {
     "cdn-root-url": string;
     "supporting-duration-years": number[];
     title: string;
+    "max-index-cnt": number;
     "country-language": CountryLanguageMap;
     "contents-text": ContentsTextWithTranslation;
     index: Record<string, Category[]>;
