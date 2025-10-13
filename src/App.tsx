@@ -20,7 +20,7 @@ function App() {
   const [meta, setMeta] = useState<AppMeta | null>(null);
 
   // default 언어는 한국어
-  const [lang, setLang] = useState<string>("");
+  const [lang, setLang] = useState<string>("ko");
 
   useEffect( // useEffect는 렌더링 이외의 작업(fetch 등)에 사용하는 리액트 훅이다.
     // useEffect 내부에서 호출된 () => {...}, [] 는
@@ -65,7 +65,12 @@ function App() {
       meta["max-index-cnt"] +
       currentText["select-index-words"][1]
     }</h2>
-    <CheckBox />
+    <CheckBox 
+      appMeta={meta}
+      availableCategories={Object.keys(meta.index)}
+      currentLang={lang}
+      onChangeSelection={ () => {} }
+    />
     <br></br>
     <br></br>
 

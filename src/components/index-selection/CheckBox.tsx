@@ -1,74 +1,39 @@
+import { type AppMeta, type Category } from '../../utils/AppMeta'
 
-function CheckBox() {
-    // TODO 인풋 태그들의 내용몰들은 나중에 수정한다.
+type SelectIndexProps = {
+    appMeta: AppMeta;
+    availableCategories: string[];
+    currentLang: string;
+    onChangeSelection: () => void;
+}
+
+function CheckBox(
+  { 
+    appMeta,
+    availableCategories,
+    currentLang,
+    onChangeSelection 
+  }: SelectIndexProps
+) {
+    // TODO 사용자가 언어 설정을 바꾸면 여기도 바뀌어야 한다.
+    // TODO 사용자가 다른 인덱스들에 체크표시하면, 그 결과를 ShowGraphs.tsx 컴포넌트로 넘겨야 한다.
+    console.log("!!! 어베일 !!! : " + availableCategories);
+    console.log("!!! 현재 언어 !!! : " + currentLang);
+    
   return (
     <div>
-      {/* 주석공간 */}
-      <h3>한국</h3>
-      <fieldset>
-        <legend>주가지수</legend>
-        <label>
-          <input type="checkbox" /> KOSPI
-        </label>
-        <br></br>
-        <label>
-          <input type="checkbox" /> KOSDAQ
-        </label>
-      </fieldset>
+      {
+        availableCategories.map(
+          (category) => (
+            <div key={category}>
+              <h3>{appMeta['contents-text'][currentLang].country[category]}</h3>
+              {
 
-      {/* 주석공간 */}
-      <fieldset>
-        <legend>금리</legend>
-        <label>
-          <input type="checkbox" /> 한국은행 기준금리
-        </label>
-        <br></br>
-        <label>
-          <input type="checkbox" /> 국채 3년물
-        </label>
-        <br></br>
-        <label>
-          <input type="checkbox" /> 국채 5년물
-        </label>
-        <br></br>
-        <label>
-          <input type="checkbox" /> 국채 10년물
-        </label>
-      </fieldset>
-
-          {/* 주석공간 */}
-      <h3>미국</h3>
-      <fieldset>
-        <legend>주가지수</legend>
-        <label>
-          <input type="checkbox" /> S&P 500
-        </label>
-        <br></br>
-        <label>
-          <input type="checkbox" /> NASDAQ composites
-        </label>
-        <br></br>
-        <label>
-          <input type="checkbox" /> Dow Jones Industrial Avg
-        </label>
-      </fieldset>
-
-      {/* 주석공간 */}
-      <fieldset>
-        <legend>금리</legend>
-        <label>
-          <input type="checkbox" /> 미국기준금리(Federal Funds Rate)
-        </label>
-        <br></br>
-        <label>
-          <input type="checkbox" /> 미국 국채 2년물
-        </label>
-        <br></br>
-        <label>
-          <input type="checkbox" /> 미국 국채 10년물
-        </label>
-      </fieldset>
-    
+              }
+            </div>
+          )
+        )
+      }
     </div>
   );
 }
