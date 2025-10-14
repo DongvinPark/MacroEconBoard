@@ -7,33 +7,46 @@ type SelectIndexProps = {
     onChangeSelection: () => void;
 }
 
-function CheckBox(
-  { 
-    appMeta,
-    availableCategories,
-    currentLang,
-    onChangeSelection 
-  }: SelectIndexProps
-) {
-    // TODO 사용자가 언어 설정을 바꾸면 여기도 바뀌어야 한다.
-    // TODO 사용자가 다른 인덱스들에 체크표시하면, 그 결과를 ShowGraphs.tsx 컴포넌트로 넘겨야 한다.
-    console.log("!!! 어베일 !!! : " + availableCategories);
-    console.log("!!! 현재 언어 !!! : " + currentLang);
-    
+function CheckBox({
+  appMeta,
+  availableCategories,
+  currentLang,
+  onChangeSelection,
+}: SelectIndexProps) {
+  // TODO 사용자가 다른 인덱스들에 체크표시하면, 그 결과를 ShowGraphs.tsx 컴포넌트로 넘겨야 한다. 즉, onChangeSelection을 수정해야 한다.
   return (
     <div>
-      {
-        availableCategories.map(
-          (category) => (
-            <div key={category}>
-              <h3>{appMeta['contents-text'][currentLang].country[category]}</h3>
-              {
+      {availableCategories.map((countryKey) => {
+        const countryName =
+          appMeta["contents-text"][currentLang].country[countryKey];
 
-              }
-            </div>
-          )
-        )
-      }
+        return (
+          <div key={countryKey}>
+            <h3>{countryName}</h3>
+
+            {appMeta.index[countryKey].map((category) => {
+              const categoryName = category["category-name"][currentLang];
+
+              return (
+                <fieldset key={categoryName}>
+                  <legend>{categoryName}</legend>
+
+                  {category.items.map((item) => {
+                    const itemName = item.name[currentLang];
+                    return (
+                      <label key={item.key}>
+                        <input type="checkbox" onChange={onChangeSelection} />{" "}
+                        {itemName}
+                        <br />
+                      </label>
+                    );
+                  })}
+                </fieldset>
+              );
+            })}
+          </div>
+        );
+      })}
     </div>
   );
 }
