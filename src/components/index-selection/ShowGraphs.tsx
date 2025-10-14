@@ -1,7 +1,17 @@
+import type { AppMeta } from "../../utils/AppMeta";
 
-function ShowGraph(){
+type ShowGraphProps = {
+    appMeta: AppMeta;
+    currentLang: string;
+}
+
+function ShowGraph(
+    { appMeta, currentLang }: ShowGraphProps
+){
     return(
-        <button>그래프 그리기</button>
+        <button>
+            {appMeta['contents-text'][currentLang]["show-graph"]}
+        </button>
     );
 }
 

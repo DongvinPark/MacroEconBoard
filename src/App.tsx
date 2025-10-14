@@ -101,7 +101,10 @@ function App() {
     <DurationSelection />
     <br></br>
 
-    <ShowGraph />
+    <ShowGraph
+      appMeta={meta}
+      currentLang={lang}
+     />
     <br></br>
     <br></br>
 
