@@ -28,7 +28,9 @@ function CheckBox({
               const categoryName = category["category-name"][currentLang];
 
               return (
-                <fieldset key={categoryName}>
+                <fieldset key={categoryName}
+                style={{ fontWeight:  "bold" }}
+                >
                   <legend>{categoryName}</legend>
 
                   {category.items.map((item) => {
