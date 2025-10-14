@@ -1,19 +1,20 @@
-import { type AppMeta, type Category } from '../../utils/AppMeta'
+import { type AppMeta } from '../../utils/AppMeta'
 
 type SelectIndexProps = {
     appMeta: AppMeta;
     availableCategories: string[];
     currentLang: string;
-    onChangeSelection: () => void;
+    selectedIndicators: string[];
+    onChangeSelection: (key: string, checked: boolean) => void;
 }
 
 function CheckBox({
   appMeta,
   availableCategories,
   currentLang,
+  selectedIndicators,
   onChangeSelection,
 }: SelectIndexProps) {
-  // TODO 사용자가 다른 인덱스들에 체크표시하면, 그 결과를 ShowGraphs.tsx 컴포넌트로 넘겨야 한다. 즉, onChangeSelection을 수정해야 한다.
   return (
     <div>
       {availableCategories.map((countryKey) => {
@@ -37,7 +38,13 @@ function CheckBox({
                     const itemName = item.name[currentLang];
                     return (
                       <label key={item.key}>
-                        <input type="checkbox" onChange={onChangeSelection} />{" "}
+                        <input
+                          type="checkbox"
+                          checked={selectedIndicators.includes(item.key)}
+                          onChange={
+                            (e) => onChangeSelection(item.key, e.target.checked)
+                          }
+                        />{" "}
                         {itemName}
                         <br />
                       </label>

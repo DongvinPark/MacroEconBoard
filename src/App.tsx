@@ -22,6 +22,22 @@ function App() {
   // default 언어는 한국어
   const [lang, setLang] = useState<string>("ko");
 
+  // 유저가 선택한 indicator 기록용
+  const [selectedIndicators, setSelectedIndicators] = useState<string[]>([]);
+  const handleIndicatorSelectionChange = (key: string, checked: boolean) => {
+    setSelectedIndicators(
+      (prev) => {
+        if(checked) {
+          // 중복 방지 + 추가
+          return [...new Set([...prev, key])];
+        } else {
+          // 체크 해제 시 제거
+          return prev.filter( (item) => item !== key );
+        }
+      }
+    );
+  };
+
   useEffect( // useEffect는 렌더링 이외의 작업(fetch 등)에 사용하는 리액트 훅이다.
     // useEffect 내부에서 호출된 () => {...}, [] 는
     // Run this effect once, when the component first mounts. 라는 뜻이다.
@@ -35,6 +51,13 @@ function App() {
       })();
     }, []
   );
+
+  // 테스트용 체크박스 선택창에서 ✅ 표시 상태가 바뀔 때마다 콘솔에 찍어보기
+  // useEffect(
+  //   () => {
+  //     console.log("✅ 현재 선택된 key:", selectedIndicators);
+  //   }, [selectedIndicators]
+  // ); // <- selectedKeys가 바뀔 때마다 실행
 
   if(!meta) return (<div>Loading...</div>);
 
@@ -69,7 +92,8 @@ function App() {
       appMeta={meta}
       availableCategories={Object.keys(meta.index)}
       currentLang={lang}
-      onChangeSelection={ () => {} }
+      selectedIndicators={selectedIndicators}
+      onChangeSelection={handleIndicatorSelectionChange}
     />
     <br></br>
     <br></br>
