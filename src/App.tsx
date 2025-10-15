@@ -38,6 +38,9 @@ function App() {
     );
   };
 
+  // 기간 선택 : default 기간은 최근 1 년
+  const [duration, setDuration] = useState<number>(1);
+
   useEffect( // useEffect는 렌더링 이외의 작업(fetch 등)에 사용하는 리액트 훅이다.
     // useEffect 내부에서 호출된 () => {...}, [] 는
     // Run this effect once, when the component first mounts. 라는 뜻이다.
@@ -52,10 +55,11 @@ function App() {
     }, []
   );
 
-  // 테스트용 체크박스 선택창에서 ✅ 표시 상태가 바뀔 때마다 콘솔에 찍어보기
+  //테스트용 체크박스 선택창에서 ✅ 표시 상태가 바뀔 때마다 콘솔에 찍어보기
   // useEffect(
   //   () => {
   //     console.log("✅ 현재 선택된 key:", selectedIndicators);
+  //     console.log(" 현재 선택된 기간 : ", duration)
   //   }, [selectedIndicators]
   // ); // <- selectedKeys가 바뀔 때마다 실행
 
@@ -98,7 +102,11 @@ function App() {
     <br></br>
     <br></br>
 
-    <DurationSelection />
+    <DurationSelection
+      appMeta={meta}
+      currentLang={lang}
+      onChangeDuration={(newDuration) => setDuration(newDuration)}
+    />
     <br></br>
 
     <ShowGraph
