@@ -15,14 +15,15 @@ const LineChart: React.FC = () => {
         textColor: "#000",
       },
       grid: {
-        vertLines: { color: "#e0e0e0" },
-        horzLines: { color: "#e0e0e0" },
+        vertLines: { visible: false },
+        horzLines: { visible: false },
       },
     });
 
     const lineSeries = chart.addLineSeries({
       color: "#2196f3",
       lineWidth: 2,
+      title: "test idx"
     });
 
     lineSeries.setData([
@@ -32,6 +33,8 @@ const LineChart: React.FC = () => {
       { time: "2023-07-04", value: 108 },
       { time: "2023-07-05", value: 103 },
     ]);
+
+    chart.timeScale().fitContent();
 
     // Resize on container change
     const resizeObserver = new ResizeObserver(() => {

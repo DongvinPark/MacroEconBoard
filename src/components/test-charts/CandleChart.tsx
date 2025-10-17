@@ -14,6 +14,10 @@ const CandleChart: React.FC = () => {
         background: { color: "#ffffff" },
         textColor: "#000",
       },
+      grid: {
+        vertLines: { visible: false },
+        horzLines: { visible: false }
+      }
     });
 
     const candleSeries = chart.addCandlestickSeries({
@@ -31,6 +35,8 @@ const CandleChart: React.FC = () => {
       { time: "2023-07-02", open: 105, high: 115, low: 100, close: 99 },
       { time: "2023-07-03", open: 110, high: 120, low: 105, close: 115 },
     ]);
+
+    chart.timeScale().fitContent();
 
     return () => chart.remove();
   }, []);

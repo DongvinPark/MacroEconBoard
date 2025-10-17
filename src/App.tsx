@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import CandleChart from "./components/test-charts/CandleChart";
 import LineChart from "./components/test-charts/LineChart";
-import CandleChartsWithEvent from "./components/test-charts/CandleChartsWithEvents";
 import CheckBox from "../src/components/index-selection/CheckBox"
 import DurationSelection from "./components/index-selection/Duration";
 import ShowGraph from "./components/index-selection/ShowGraphs";
 import SelectLang from "./components/languiage/SelectLang";
-import { loadAppMeta, type AppMeta, type Category, type ContentsTextWithTranslation, type CountryLanguageMap, type UiContentText } from "./utils/AppMeta";
+import { loadAppMeta, type AppMeta, type ContentsTextWithTranslation, type UiContentText } from "./utils/AppMeta";
+import ChartWithEvent from "./components/test-charts/ChartWithEvent";
 
 function App() {
 
@@ -123,8 +123,8 @@ function App() {
       <h2 style={{ color: "green" }}>Test line Chart</h2>
       <LineChart />
 
-      <h2 style={{ color: "green" }}>Test Candle + Events Chart</h2>
-      <CandleChartsWithEvent />
+      <h2 style={{ color: "green" }}>Test Chart with Event</h2>
+      <ChartWithEvent />
     </div>
     <div>
       <h3>{currentText["customer-service"] + "\t" + meta["developer-email"]}</h3>
