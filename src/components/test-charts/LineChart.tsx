@@ -27,11 +27,11 @@ const LineChart: React.FC = () => {
     });
 
     lineSeries.setData([
-      { time: "2023-07-01", value: 100 },
-      { time: "2023-07-02", value: 105 },
-      { time: "2023-07-03", value: 102 },
-      { time: "2023-07-04", value: 108 },
-      { time: "2023-07-05", value: 103 },
+      { time: "2023-07-01", value: 0.4 },
+      { time: "2023-07-02", value: 1.1 },
+      { time: "2023-07-03", value: 1.4 },
+      { time: "2023-07-04", value: 2.3 },
+      { time: "2023-07-05", value: 1.1 },
     ]);
 
     chart.timeScale().fitContent();
@@ -52,7 +52,6 @@ const LineChart: React.FC = () => {
 
   return (
     <div>
-      <div>Line Chart:</div>
       <div
         ref={chartContainerRef}
         style={{ width: "100%", height: 300, backgroundColor: "#eee" }}

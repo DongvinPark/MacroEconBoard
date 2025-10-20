@@ -21,7 +21,7 @@ function ShowGraph(
                 <h2 style={{ color: "green" }}>Test Candle Chart</h2>
                 <CandleChart />
 
-                <h2 style={{ color: "green" }}>Test line Chart</h2>
+                <h2 style={{ color: "green" }}>{"Test line Chart" + "(" + "%" + ")"}</h2>
                 <LineChart />
 
                 <h2 style={{ color: "green" }}>Test Chart with Event</h2>
