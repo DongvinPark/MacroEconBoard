@@ -20,19 +20,25 @@ function App() {
   const [lang, setLang] = useState<string>("ko");
 
   // 유저가 선택한 indicator 기록용
-  const [selectedIndicators, setSelectedIndicators] = useState<string[]>([]);
-  const handleIndicatorSelectionChange = (key: string, checked: boolean) => {
-    setSelectedIndicators(
-      (prev) => {
-        if(checked) {
-          // 중복 방지 + 추가
-          return [...new Set([...prev, key])];
-        } else {
-          // 체크 해제 시 제거
-          return prev.filter( (item) => item !== key );
-        }
+  const [selectedIndicators, setSelectedIndicators] = useState<Record<string, string[]>>({});
+  const handleIndicatorSelectionChange = (
+    key: string,
+    firstCategoryName: string,
+    idxStr: string,
+    checked: boolean
+  ) => {
+    const value = [firstCategoryName, idxStr];
+    setSelectedIndicators(prev => {
+      const next = { ...prev };
+      if (checked) {
+        // ✅ add or update key
+        next[key] = value;
+      } else {
+        // ❌ remove key when unchecked
+        delete next[key];
       }
-    );
+      return next;
+    });
   };
 
   // 기간 선택 : default 기간은 최근 1 년

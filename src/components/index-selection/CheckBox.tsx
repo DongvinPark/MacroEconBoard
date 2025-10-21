@@ -4,8 +4,8 @@ type SelectIndexProps = {
     appMeta: AppMeta;
     availableCategories: string[];
     currentLang: string;
-    selectedIndicators: string[];
-    onChangeSelection: (key: string, checked: boolean) => void;
+    selectedIndicators: Record<string, string[]>;
+    onChangeSelection: (key: string, firstCategoryName: string, idxStr: string, checked: boolean) => void;
 }
 
 function CheckBox({
@@ -17,7 +17,7 @@ function CheckBox({
 }: SelectIndexProps) {
   return (
     <div>
-      {availableCategories.map((countryKey) => {
+      {availableCategories.map((countryKey, firstCategoryIdx) => {
         const countryName =
           appMeta["contents-text"][currentLang].country[countryKey];
 
@@ -25,7 +25,7 @@ function CheckBox({
           <div key={countryKey}>
             <h3>{countryName}</h3>
 
-            {appMeta.index[countryKey].map((category) => {
+            {appMeta.index[countryKey].map((category, secondCategoryIdx) => {
               const categoryName = category["category-name"][currentLang];
 
               return (
@@ -34,15 +34,17 @@ function CheckBox({
                 >
                   <legend>{categoryName}</legend>
 
-                  {category.items.map((item) => {
+                  {category.items.map((item, itemIdx) => {
                     const itemName = item.name[currentLang];
+                    const idxStr = 
+                      String(firstCategoryIdx) + String(secondCategoryIdx) + String(itemIdx);
                     return (
                       <label key={item.key}>
                         <input
                           type="checkbox"
-                          checked={selectedIndicators.includes(item.key)}
+                          checked={item.key in selectedIndicators}
                           onChange={
-                            (e) => onChangeSelection(item.key, e.target.checked)
+                            (e) => onChangeSelection(item.key, countryKey, idxStr, e.target.checked)
                           }
                         />{" "}
                         {itemName}
