@@ -115,6 +115,8 @@ function App() {
     <ShowGraph
       appMeta={meta}
       currentLang={lang}
+      duration={duration}
+      selectedIndicators={selectedIndicators}
      />
     <br></br>
     <br></br>
