@@ -40,15 +40,15 @@ function ShowGraph(
 
             <div>
                 <h2 style={{ color: "green" }}>Test Candle Chart</h2>
-                <line>{"test meta data 1"}</line>
+                <p>{"test meta data 1"}</p>
                 <CandleChart />
 
                 <h2 style={{ color: "green" }}>{"Test line Chart" + "(" + "%" + ")"}</h2>
-                <line>{""}</line>
+                <p>{/* empty meta data */}</p>
                 <LineChart />
 
                 <h2 style={{ color: "green" }}>Test Chart with Event</h2>
-                <line>{"test meta data 2"}</line>
+                <p>{"test meta data 2"}</p>
                 <ChartWithEvent />
             </div>
         </div>
