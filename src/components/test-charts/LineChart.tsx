@@ -18,6 +18,32 @@ const LineChart: React.FC = () => {
         vertLines: { visible: false },
         horzLines: { visible: false },
       },
+      timeScale: {
+        borderVisible: true,
+        tickMarkFormatter: (time: string | number | Date) => {
+          // lightweight-charts의 time은 문자열("YYYY-MM-DD") 또는 timestamp일 수 있음
+          const dateObj = typeof time === "string" ? new Date(time) : new Date((time as number) * 1000);
+          if (isNaN(dateObj.getTime())) return ""; // 방어 코드
+      
+          const yyyy = dateObj.getFullYear();
+          const mm = String(dateObj.getMonth() + 1).padStart(2, "0");
+          const dd = String(dateObj.getDate()).padStart(2, "0");
+          return `${yyyy}-${mm}-${dd}`;
+        },
+      },
+      localization: {
+        // 사용자의 위치와 상관없이 항상 ISO로 표시
+        locale: "en-GB",
+        timeFormatter: (time: string | number | Date) => {
+          const dateObj = typeof time === "string" ? new Date(time) : new Date((time as number) * 1000);
+          if (isNaN(dateObj.getTime())) return "";
+      
+          const yyyy = dateObj.getFullYear();
+          const mm = String(dateObj.getMonth() + 1).padStart(2, "0");
+          const dd = String(dateObj.getDate()).padStart(2, "0");
+          return `${yyyy}-${mm}-${dd}`;
+        },
+      },
     });
 
     const lineSeries = chart.addLineSeries({
