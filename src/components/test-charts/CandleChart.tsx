@@ -71,7 +71,7 @@ const CandleChart: React.FC = () => {
     <div>
       <div
         ref={chartContainerRef}
-        style={{ width: "100%", height: 300, backgroundColor: "#eee" }}
+        style={{ width: 580, height: 300, backgroundColor: "#eee" }}
       />
     </div>
   );

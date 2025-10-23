@@ -17,8 +17,8 @@ const ChartWithEvent: React.FC = () => {
         textColor: "#222",
       },
       grid: {
-        vertLines: { visible: true, color: "#e6e6e6" },
-        horzLines: { visible: true, color: "#e6e6e6" },
+        vertLines: { visible: /*true, color: "#e6e6e6"*/false },
+        horzLines: { visible: /*true, color: "#e6e6e6"*/false },
       },
       rightPriceScale: {
         visible: true,
@@ -109,6 +109,7 @@ const ChartWithEvent: React.FC = () => {
     <div style={{ position: "relative" }}>
       <div
         ref={chartContainerRef}
+        style={{ width: 580, height: 300, backgroundColor: "#eee" }} 
       />
       {tooltip && (
         <div
