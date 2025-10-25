@@ -109,7 +109,7 @@ const ChartWithEvent: React.FC = () => {
     <div style={{ position: "relative" }}>
       <div
         ref={chartContainerRef}
-        style={{ width: 580, height: 300, backgroundColor: "#eee" }} 
+        style={{ height: 300, backgroundColor: "#eee" }} 
       />
       {tooltip && (
         <div

@@ -1,4 +1,13 @@
 import { useEffect, useState } from "react";
+import {
+  Box,
+  CssBaseline,
+  Drawer,
+  Toolbar,
+  Typography,
+  Container,
+  Divider,
+} from "@mui/material";
 import CheckBox from "../src/components/index-selection/CheckBox"
 import DurationSelection from "./components/index-selection/Duration";
 import ShowGraph from "./components/index-selection/ShowGraphs";
@@ -74,8 +83,20 @@ function App() {
 
   return (
   <div>
-    <h1>{meta.title}</h1>
-    <h2>{currentText.catchphrase}</h2>
+    <Box
+      component="header"
+      sx={{
+        backgroundColor: "#1e1e1e",
+        color: "#fff",
+        p: 2,
+      }}
+    >
+      <Typography variant="h5">{meta.title}</Typography>
+      <Typography variant="subtitle1" sx={{ color: "gray", mt: 0.5 }}>
+        {currentText.catchphrase}
+      </Typography>
+    </Box>
+
     <br></br>
     {/*
         SelectLang.tsx 에서 정의 해놓은 Props 타입의 property 필드들과,
@@ -90,11 +111,11 @@ function App() {
     />
     <br></br>
 
-    <h2>{
+    <h3>{
       currentText["select-index-words"][0] +
       meta["max-index-cnt"] +
       currentText["select-index-words"][1]
-    }</h2>
+    }</h3>
     <CheckBox 
       appMeta={meta}
       availableCategories={Object.keys(meta.index)}
@@ -119,11 +140,12 @@ function App() {
       selectedIndicators={selectedIndicators}
      />
     <br></br>
-    <br></br>
-
-    <div>
-      <h3>{currentText["customer-service"] + "\t" + meta["developer-email"]}</h3>
-    </div>
+    <Box sx={{ textAlign: "center", color: "#777", mt: 6, width: "100%" }}>
+      <Divider sx={{ my: 3 }} />
+      <Typography variant="body2">
+        {currentText["customer-service"] + " " + meta["developer-email"]}
+      </Typography>
+    </Box>
   </div>
 );
 }
