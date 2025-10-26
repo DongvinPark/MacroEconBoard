@@ -6,6 +6,8 @@ import {
   Toolbar,
   Typography,
   Container,
+  Stack,
+  IconButton,
   Divider,
 } from "@mui/material";
 import CheckBox from "../src/components/index-selection/CheckBox"
@@ -14,7 +16,13 @@ import ShowGraph from "./components/index-selection/ShowGraphs";
 import SelectLang from "./components/languiage/SelectLang";
 import { loadAppMeta, type AppMeta, type ContentsTextWithTranslation, type UiContentText } from "./utils/AppMeta";
 
+import SearchIcon from "@mui/icons-material/Search";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import LanguageIcon from "@mui/icons-material/Language";
+import SettingsIcon from "@mui/icons-material/Settings";
+
 function App() {
+  const leftSidebarWidth = 23;
 
   // TODO - 테스트용
   // (async () => {
@@ -83,68 +91,125 @@ function App() {
 
   return (
   <div>
-    <Box
-      component="header"
+    {/*Left Sidebar*/}
+    <Drawer
+      variant="permanent"
       sx={{
-        backgroundColor: "#1e1e1e",
-        color: "#fff",
+        width: leftSidebarWidth,
+        flexShrink: 0,
+        [`& .MuiDrawer-paper`]: {
+          width: leftSidebarWidth,
+          boxSizing: "border-box",
+          backgroundColor: "#1e1e1e",
+          color: "white",
+          borderRight: "none",
+        },
+      }}
+    >
+      <Toolbar />
+      <Box
+        sx={{
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "space-between",
+          py: 2,
+        }}
+      >
+        {/* 상단 아이콘들 */}
+        <Stack spacing={2} alignItems="center">
+          
+          <IconButton color="inherit">
+            <AccessTimeIcon />
+          </IconButton>
+        </Stack>
+
+        <Divider sx={{ width: "80%", backgroundColor: "#444" }} />
+
+        {/* 하단 아이콘 (예: 설정) */}
+        <IconButton color="inherit">
+          <SettingsIcon />
+        </IconButton>
+      </Box>
+    </Drawer>
+
+    <Box
+      component="main"
+      sx={{
+        flexGrow: 1,
+        ml: `${leftSidebarWidth}px`, // ← 사이드바 폭만큼 오른쪽으로 밀기
         p: 2,
       }}
     >
-      <Typography variant="h5">{meta.title}</Typography>
-      <Typography variant="subtitle1" sx={{ color: "gray", mt: 0.5 }}>
-        {currentText.catchphrase}
-      </Typography>
-    </Box>
+      {/*Header*/}
+      <Box
+        component="header"
+        sx={{
+          backgroundColor: "#1e1e1e",
+          color: "#fff",
+          p: 2,
+        }}
+      >
+        <Typography variant="h5">{meta.title}</Typography>
+        <Typography variant="subtitle1" sx={{ color: "gray", mt: 0.5 }}>
+          {currentText.catchphrase}
+        </Typography>
+      </Box>
+      <br></br>
 
-    <br></br>
-    {/*
-        SelectLang.tsx 에서 정의 해놓은 Props 타입의 property 필드들과,
-        바로 아래의 코드와 같이
-        SelectLang 태그를 실제로 호출하면서 넘겨주는 property 들의 이름이 일치해야 한다.
-    */}
-    <SelectLang
-      appMeta={meta}
-      availableLangs={Object.keys(meta["contents-text"])}
-      currentLang={lang}
-      onChangeLang={(newLang) => setLang(newLang)}
-    />
-    <br></br>
+      <br></br>
+      {/*
+        MAIN CONTENTS
+          SelectLang.tsx 에서 정의 해놓은 Props 타입의 property 필드들과,
+          바로 아래의 코드와 같이
+          SelectLang 태그를 실제로 호출하면서 넘겨주는 property 들의 이름이 일치해야 한다.
+      */}
+      <SelectLang
+        appMeta={meta}
+        availableLangs={Object.keys(meta["contents-text"])}
+        currentLang={lang}
+        onChangeLang={(newLang) => setLang(newLang)}
+      />
+      <br></br>
 
-    <h3>{
-      currentText["select-index-words"][0] +
-      meta["max-index-cnt"] +
-      currentText["select-index-words"][1]
-    }</h3>
-    <CheckBox 
-      appMeta={meta}
-      availableCategories={Object.keys(meta.index)}
-      currentLang={lang}
-      selectedIndicators={selectedIndicators}
-      onChangeSelection={handleIndicatorSelectionChange}
-    />
-    <br></br>
-    <br></br>
+      <h3>{
+        currentText["select-index-words"][0] +
+        meta["max-index-cnt"] +
+        currentText["select-index-words"][1]
+      }</h3>
+      <CheckBox 
+        appMeta={meta}
+        availableCategories={Object.keys(meta.index)}
+        currentLang={lang}
+        selectedIndicators={selectedIndicators}
+        onChangeSelection={handleIndicatorSelectionChange}
+      />
+      <br></br>
+      <br></br>
 
-    <DurationSelection
-      appMeta={meta}
-      currentLang={lang}
-      onChangeDuration={(newDuration) => setDuration(newDuration)}
-    />
-    <br></br>
+      <DurationSelection
+        appMeta={meta}
+        currentLang={lang}
+        onChangeDuration={(newDuration) => setDuration(newDuration)}
+      />
+      <br></br>
 
-    <ShowGraph
-      appMeta={meta}
-      currentLang={lang}
-      duration={duration}
-      selectedIndicators={selectedIndicators}
-     />
-    <br></br>
-    <Box sx={{ textAlign: "center", color: "#777", mt: 6, width: "100%" }}>
-      <Divider sx={{ my: 3 }} />
-      <Typography variant="body2">
-        {currentText["customer-service"] + " " + meta["developer-email"]}
-      </Typography>
+      <ShowGraph
+        appMeta={meta}
+        currentLang={lang}
+        duration={duration}
+        selectedIndicators={selectedIndicators}
+      />
+      <br></br>
+
+      {/*Footer*/}
+      <Box sx={{ textAlign: "center", color: "#777", mt: 6, width: "100%" }}>
+        <Divider sx={{ my: 3 }} />
+        <Typography variant="body2">
+          {currentText["customer-service"] + " " + meta["developer-email"]}
+        </Typography>
+      </Box>
     </Box>
   </div>
 );
