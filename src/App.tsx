@@ -82,20 +82,29 @@ function App() {
   ) => {
     //기록 중 가장 최근 것과 넘겨 받은 elem을 비교한다.
     //둘이 같으면 기록하지 않고, 같지 않으면 last append 방식으로 기록한다.
-    const latest = searchRecord?.keys().next().value;
+    const latestKey = searchRecord?.keys().next().value;
+    const latestValue = latestKey ? searchRecord?.get(latestKey) : {};
 
     var keyCompare = true;
     var valueCompare = true;
     
-    if(latest?.length != curSearch.keys.length){
+    if(Object.entries(latestValue).length != Object.entries(curSearch).length){
+      console.log("여기라고?!!");
+      console.log("!!! latest len : " + Object.entries(latestValue).length);
+      console.log(latestValue);
+      console.log("!!! curSearch len : " + Object.entries(curSearch).length);
+      console.log(curSearch);
       keyCompare = false;
       valueCompare = false;
     } else {
-      const latestRecordOjt = Object.entries(latest);
+      console.log("인덱스 개수 같음 진입!!!");
+      const latestRecordOjt = Object.entries(latestValue);
       const curSearchOjt = Object.entries(curSearch);
       for (let i = 0; i<latestRecordOjt.length; i++) {
         if(latestRecordOjt[i][0] == curSearchOjt[i][0]){
-          // ex : {"kr", {"kospi", "000"}} 에서 kr 부분이 같은 것이므로, 내부의 {"kospi", "000"} 부분을 비교해야 한다.
+          // ex : {"kr", {"kospi", "000"}} 에서 kr 부분이 같은 것이므로,
+          // 내부의 {"kospi", "000"} 부분을 비교해야 한다.
+          console.log("여기 같다고?!");
           if(
             latestRecordOjt[i][0][0] != curSearchOjt[i][0][0] ||
             latestRecordOjt[i][0][1] != curSearchOjt[i][0][1]
@@ -114,6 +123,7 @@ function App() {
 
     if(keyCompare && valueCompare){
       // do noting
+      console.log("!!! 검색 기록 겹침 !!!");
     } else {
       const now = new Date();
       const utcString = now.toISOString();
@@ -127,11 +137,18 @@ function App() {
   };
 
   //테스트용 체크박스 선택창에서 ✅ 표시 상태가 바뀔 때마다 콘솔에 찍어보기
+  //useEffect(
+  //  () => {
+  //    console.log("✅ 현재 선택된 key:", selectedIndicators);
+  //    console.log(" 현재 선택된 기간 : ", duration)
+  //  }, [selectedIndicators]
+  //); // <- selectedKeys가 바뀔 때마다 실행
+
+  //테스트용 '그래프 그리기' 버튼 누를 때마다 콘솔에 찍어보기
   useEffect(
     () => {
-      console.log("✅ 현재 선택된 key:", selectedIndicators);
-      console.log(" 현재 선택된 기간 : ", duration)
-    }, [selectedIndicators]
+      console.log("✅ 현재 검색 기록:", searchRecord);
+    }, [searchRecord]
   ); // <- selectedKeys가 바뀔 때마다 실행
 
   if(!meta) return (<div>Loading...</div>);
@@ -251,6 +268,9 @@ function App() {
         currentLang={lang}
         duration={duration}
         selectedIndicators={selectedIndicators}
+        searchRecord={searchRecord}
+        handleSearchRecord={handleSearchRecrod}
+        setSearchRecord={setSearchRecord}
       />
       <br></br>
 

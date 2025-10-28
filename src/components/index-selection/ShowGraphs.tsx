@@ -9,9 +9,23 @@ type ShowGraphProps = {
     currentLang: string;
     duration: number;
     selectedIndicators: Record<string, string[]>;
+
+    // for search record
+    searchRecord: Map<string, Record<string, string[]>>;
+
+    handleSearchRecord: (curSearch: Record<string, string[]>) => void;
+
+    setSearchRecord: React.Dispatch<
+        React.SetStateAction<Map<string, Record<string, string[]>>>
+    >;
 };
 
-function ShowGraph({ appMeta, currentLang, duration, selectedIndicators }: ShowGraphProps) {
+function ShowGraph(
+    { 
+        appMeta, currentLang, duration, selectedIndicators,
+        searchRecord, handleSearchRecord, setSearchRecord
+    }: ShowGraphProps
+) {
 
     // TODO : API 서버한테 이벤트 리스트 GET 요청 해야한다. 1 번이면 된다.
     // TODO : CDN 서버한테 json들 GET 요청 하되, 5개의 스레드로 concurrent 하게 처리해야 한다.
@@ -23,7 +37,7 @@ function ShowGraph({ appMeta, currentLang, duration, selectedIndicators }: ShowG
     const [loading, setLoading] = useState(false);         // 로딩 중 여부
 
     /*
-    { kospi: ["kr", "001"], kosdaq: ["kr", "002"] } 과 같은 Record를
+    { kospi: ["kr", "000"], kosdaq: ["kr", "001"] } 과 같은 Record를
     "001" 부분의 문자열로 오름차순 정렬한다. 이렇게 함으로써
     유저의 인덱스 선택 순서와 상관없이 인덱스 선택창에서 나열한 순서대로 그래프들을 보여준다.
     */
@@ -34,8 +48,10 @@ function ShowGraph({ appMeta, currentLang, duration, selectedIndicators }: ShowG
             return acc;
         }, {} as Record<string, string[]>);
 
-    console.log("!!! 쇼프래프 내 출력 !!!");
-    console.log(sortedIndicators);
+    //console.log("!!! 쇼프래프 내 출력 !!!");
+    //Object.entries(sortedIndicators).forEach(([key, val]) =>
+    //    console.log(`${key}: ${val[1]}`)
+    //);
 
     // 버튼 클릭 시 로직
     const handleShowGraphs = async () => {
@@ -53,6 +69,9 @@ function ShowGraph({ appMeta, currentLang, duration, selectedIndicators }: ShowG
         // 로딩 완료 후 그래프 표시
         setLoading(false);
         setShowGraphs(true);
+
+        handleSearchRecord(sortedIndicators);
+        console.log("!!! 그래프 그리기 버튼 누름 후 처리 함수 끝 !!!");
     };
 
     return (
