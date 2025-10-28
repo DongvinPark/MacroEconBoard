@@ -34,6 +34,9 @@ function ShowGraph({ appMeta, currentLang, duration, selectedIndicators }: ShowG
             return acc;
         }, {} as Record<string, string[]>);
 
+    console.log("!!! 쇼프래프 내 출력 !!!");
+    console.log(sortedIndicators);
+
     // 버튼 클릭 시 로직
     const handleShowGraphs = async () => {
         if (showGraphs) {

@@ -31,7 +31,21 @@ function App() {
   //   console.log(meta.index["kr"][0].items[0].name["ko"])
   // })();
 
+  // app meta 다운로드. 웹앱 구동 시 필수.
   const [meta, setMeta] = useState<AppMeta | null>(null);
+  useEffect( // useEffect는 렌더링 이외의 작업(fetch 등)에 사용하는 리액트 훅이다.
+    // useEffect 내부에서 호출된 () => {...}, [] 는
+    // Run this effect once, when the component first mounts. 라는 뜻이다.
+    () => {
+      // (async () => {...})();는
+      // Immediately Invoked Async Function Expression (IIAFE) 다.
+      // async task를 수행하는 함수를 정의하는 즉시 실행되게 만든다.
+      (async () => {
+        const loadedMeta = await loadAppMeta();
+        setMeta(loadedMeta);
+      })();
+    }, []
+  );
 
   // default 언어는 한국어
   const [lang, setLang] = useState<string>("ko");
@@ -61,27 +75,62 @@ function App() {
   // 기간 선택 : default 기간은 최근 1 년
   const [duration, setDuration] = useState<number>(1);
 
-  useEffect( // useEffect는 렌더링 이외의 작업(fetch 등)에 사용하는 리액트 훅이다.
-    // useEffect 내부에서 호출된 () => {...}, [] 는
-    // Run this effect once, when the component first mounts. 라는 뜻이다.
-    () => {
-      // (async () => {...})();는
-      // Immediately Invoked Async Function Expression (IIAFE) 다.
-      // async task를 수행하는 함수를 정의하는 즉시 실행되게 만든다.
-      (async () => {
-        const loadedMeta = await loadAppMeta();
-        setMeta(loadedMeta);
-      })();
-    }, []
-  );
+  // 검색 기록 보관용
+  const [searchRecord, setSearchRecord] = useState< Map<string, Record<string, string[]>> >();
+  const handleSearchRecrod = (
+    curSearch: Record<string, string[]>
+  ) => {
+    //기록 중 가장 최근 것과 넘겨 받은 elem을 비교한다.
+    //둘이 같으면 기록하지 않고, 같지 않으면 last append 방식으로 기록한다.
+    const latest = searchRecord?.keys().next().value;
+
+    var keyCompare = true;
+    var valueCompare = true;
+    
+    if(latest?.length != curSearch.keys.length){
+      keyCompare = false;
+      valueCompare = false;
+    } else {
+      const latestRecordOjt = Object.entries(latest);
+      const curSearchOjt = Object.entries(curSearch);
+      for (let i = 0; i<latestRecordOjt.length; i++) {
+        if(latestRecordOjt[i][0] == curSearchOjt[i][0]){
+          // ex : {"kr", {"kospi", "000"}} 에서 kr 부분이 같은 것이므로, 내부의 {"kospi", "000"} 부분을 비교해야 한다.
+          if(
+            latestRecordOjt[i][0][0] != curSearchOjt[i][0][0] ||
+            latestRecordOjt[i][0][1] == curSearchOjt[i][0][1]
+          ){
+            keyCompare = false;
+            valueCompare = false;
+            break;
+          }
+        } else {
+          keyCompare = false;
+          valueCompare = false;
+          break;
+        }
+      }
+    }
+
+    if(keyCompare && valueCompare){
+      // do noting
+    } else {
+      const now = new Date();
+      const utcString = now.toISOString();
+      searchRecord?.set(utcString, curSearch);
+      setSearchRecord(
+        // ??
+      );
+    }
+  };
 
   //테스트용 체크박스 선택창에서 ✅ 표시 상태가 바뀔 때마다 콘솔에 찍어보기
-  // useEffect(
-  //   () => {
-  //     console.log("✅ 현재 선택된 key:", selectedIndicators);
-  //     console.log(" 현재 선택된 기간 : ", duration)
-  //   }, [selectedIndicators]
-  // ); // <- selectedKeys가 바뀔 때마다 실행
+  useEffect(
+    () => {
+      console.log("✅ 현재 선택된 key:", selectedIndicators);
+      console.log(" 현재 선택된 기간 : ", duration)
+    }, [selectedIndicators]
+  ); // <- selectedKeys가 바뀔 때마다 실행
 
   if(!meta) return (<div>Loading...</div>);
 
