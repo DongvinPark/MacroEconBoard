@@ -98,7 +98,7 @@ function App() {
           // ex : {"kr", {"kospi", "000"}} 에서 kr 부분이 같은 것이므로, 내부의 {"kospi", "000"} 부분을 비교해야 한다.
           if(
             latestRecordOjt[i][0][0] != curSearchOjt[i][0][0] ||
-            latestRecordOjt[i][0][1] == curSearchOjt[i][0][1]
+            latestRecordOjt[i][0][1] != curSearchOjt[i][0][1]
           ){
             keyCompare = false;
             valueCompare = false;
@@ -118,9 +118,11 @@ function App() {
       const now = new Date();
       const utcString = now.toISOString();
       searchRecord?.set(utcString, curSearch);
-      setSearchRecord(
-        // ??
-      );
+      setSearchRecord(prev => {
+        const newMap = new Map(prev);
+        newMap.set(utcString, curSearch);
+        return newMap;
+      });
     }
   };
 
