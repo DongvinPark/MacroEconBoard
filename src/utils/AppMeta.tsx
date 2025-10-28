@@ -41,6 +41,7 @@ export type AppMeta = {
     "supporting-duration-years": number[];
     title: string;
     "max-index-cnt": number;
+    "max-search-record-cnt": number;
     "country-language": CountryLanguageMap;
     "contents-text": ContentsTextWithTranslation;
     index: Record<string, Category[]>;
