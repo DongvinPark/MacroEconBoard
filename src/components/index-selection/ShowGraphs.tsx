@@ -11,7 +11,7 @@ type ShowGraphProps = {
     selectedIndicators: Record<string, string[]>;
 
     // for search record
-    handleSearchRecord: (curSearch: Record<string, string[]>) => void;
+    handleSearchRecord: (curSearch: Record<string, string[]>, curDuration: number) => void;
 };
 
 function ShowGraph(
@@ -63,7 +63,7 @@ function ShowGraph(
         setLoading(false);
         setShowGraphs(true);
 
-        handleSearchRecord(sortedIndicators);
+        handleSearchRecord(sortedIndicators, duration);
     };
 
     return (
