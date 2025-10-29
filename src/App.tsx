@@ -82,18 +82,20 @@ function App() {
   ) => {
     //기록 중 가장 최근 것과 넘겨 받은 elem을 비교한다.
     //둘이 같으면 기록하지 않고, 같지 않으면 last append 방식으로 기록한다.
-    const latestKey = searchRecord?.keys().next().value;
-    const latestValue = latestKey ? searchRecord?.get(latestKey) : {};
+    const searchRecordSize = searchRecord != undefined ? Object.entries(searchRecord).length : 0;
+    const latestValue = searchRecordSize == 0 ? {} : Object.entries(searchRecord)[searchRecordSize-1];
 
     var keyCompare = true;
     var valueCompare = true;
     
+    console.log("!!! 핸들 서치 레코드 진입 !!!");
+    console.log("최근 기록 : ");
+    console.log(latestValue);
+    console.log("최근 서치 : ");
+    console.log(curSearch);
+
     if(Object.entries(latestValue).length != Object.entries(curSearch).length){
-      console.log("여기라고?!!");
-      console.log("!!! latest len : " + Object.entries(latestValue).length);
-      console.log(latestValue);
-      console.log("!!! curSearch len : " + Object.entries(curSearch).length);
-      console.log(curSearch);
+      console.log("개수 다름 !!");
       keyCompare = false;
       valueCompare = false;
     } else {
@@ -121,6 +123,11 @@ function App() {
       }
     }
 
+    console.log("맥스 제한 ! : " + meta["max-search-record-cnt"]);
+    if(searchRecord != undefined){
+      console.log("서치레코드 길이 ! : " + searchRecord.entries.length);
+    }
+
     if(keyCompare && valueCompare){
       // do noting
       console.log("!!! 검색 기록 겹침 !!!");
@@ -129,8 +136,21 @@ function App() {
       const utcString = now.toISOString();
       searchRecord?.set(utcString, curSearch);
       setSearchRecord(prev => {
+
+        console.log("셋서치레코드 내 프레브 ! : " + prev?.entries.length);
+
         const newMap = new Map(prev);
         newMap.set(utcString, curSearch);
+
+        if(newMap.size > meta["max-search-record-cnt"]){
+          console.log("!!! 기록 한도 초과 !!!");
+          const oldestKey = newMap.keys().next().value; // 맵에서 가장 오래된 키 얻기
+                                                       // 가장 최신 키는 Array.from(newMap.keys()).pop()
+          newMap.delete(oldestKey);
+          console.log("삭제 후 사이즈 !! : " + newMap.size);
+        }
+
+        console.log("최종 뉴맵 사이즈 !!! : " + newMap.size);
         return newMap;
       });
     }
@@ -268,7 +288,6 @@ function App() {
         currentLang={lang}
         duration={duration}
         selectedIndicators={selectedIndicators}
-        searchRecord={searchRecord}
         handleSearchRecord={handleSearchRecrod}
         setSearchRecord={setSearchRecord}
       />

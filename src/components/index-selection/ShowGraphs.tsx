@@ -11,10 +11,7 @@ type ShowGraphProps = {
     selectedIndicators: Record<string, string[]>;
 
     // for search record
-    searchRecord: Map<string, Record<string, string[]>>;
-
     handleSearchRecord: (curSearch: Record<string, string[]>) => void;
-
     setSearchRecord: React.Dispatch<
         React.SetStateAction<Map<string, Record<string, string[]>>>
     >;
@@ -22,8 +19,7 @@ type ShowGraphProps = {
 
 function ShowGraph(
     { 
-        appMeta, currentLang, duration, selectedIndicators,
-        searchRecord, handleSearchRecord, setSearchRecord
+        appMeta, currentLang, duration, selectedIndicators,handleSearchRecord, setSearchRecord
     }: ShowGraphProps
 ) {
 
