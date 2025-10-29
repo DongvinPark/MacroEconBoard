@@ -76,85 +76,47 @@ function App() {
   const [duration, setDuration] = useState<number>(1);
 
   // 검색 기록 보관용
-  const [searchRecord, setSearchRecord] = useState< Map<string, Record<string, string[]>> >();
-  const handleSearchRecrod = (
-    curSearch: Record<string, string[]>
-  ) => {
-    //기록 중 가장 최근 것과 넘겨 받은 elem을 비교한다.
-    //둘이 같으면 기록하지 않고, 같지 않으면 last append 방식으로 기록한다.
-    const searchRecordSize = searchRecord != undefined ? Object.entries(searchRecord).length : 0;
-    const latestValue = searchRecordSize == 0 ? {} : Object.entries(searchRecord)[searchRecordSize-1];
+  const [searchRecord, setSearchRecord] = useState<Map<string, Record<string, string[]>>>(new Map());
+  const handleSearchRecord = (curSearch: Record<string, string[]>) => {
+    // 맵이 비어있으면 바로 추가
+    if (searchRecord.size === 0) {
+      const now = new Date().toISOString();
+      setSearchRecord(new Map([[now, curSearch]]));
+      return;
+    }
 
-    var keyCompare = true;
-    var valueCompare = true;
-    
-    console.log("!!! 핸들 서치 레코드 진입 !!!");
-    console.log("최근 기록 : ");
-    console.log(latestValue);
-    console.log("최근 서치 : ");
-    console.log(curSearch);
+    // 최신 기록 가져오기
+    const latestKey = Array.from(searchRecord.keys()).pop();
+    const latestValue = latestKey ? searchRecord.get(latestKey) : undefined;
 
-    if(Object.entries(latestValue).length != Object.entries(curSearch).length){
-      console.log("개수 다름 !!");
-      keyCompare = false;
-      valueCompare = false;
-    } else {
-      console.log("인덱스 개수 같음 진입!!!");
-      const latestRecordOjt = Object.entries(latestValue);
-      const curSearchOjt = Object.entries(curSearch);
-      for (let i = 0; i<latestRecordOjt.length; i++) {
-        if(latestRecordOjt[i][0] == curSearchOjt[i][0]){
-          // ex : {"kr", {"kospi", "000"}} 에서 kr 부분이 같은 것이므로,
-          // 내부의 {"kospi", "000"} 부분을 비교해야 한다.
-          console.log("여기 같다고?!");
-          if(
-            latestRecordOjt[i][0][0] != curSearchOjt[i][0][0] ||
-            latestRecordOjt[i][0][1] != curSearchOjt[i][0][1]
-          ){
-            keyCompare = false;
-            valueCompare = false;
-            break;
-          }
-        } else {
-          keyCompare = false;
-          valueCompare = false;
-          break;
+    // 최신 기록과 동일한지 비교(JSON 문자열 비교)
+    const isDuplicate =
+      latestValue && JSON.stringify(latestValue) === JSON.stringify(curSearch);
+
+    if (isDuplicate) {
+      return; // 현재 검색과 가장 최근 기록이 중복이면 아무 것도 안 함
+    }
+
+    // 새로운 맵 생성 (이전 상태 복제)
+    setSearchRecord(prev => {
+      const newMap = new Map(prev);
+      const now = new Date().toISOString();
+      newMap.set(now, curSearch);
+
+      // 개수 초과 시, 가장 오래된 키 삭제
+      const maxCnt = meta["max-search-record-cnt"];
+      if (newMap.size > maxCnt) {
+        const oldestKey = newMap.keys().next().value;
+        if (oldestKey !== undefined) {
+          newMap.delete(oldestKey);
         }
       }
-    }
 
-    console.log("맥스 제한 ! : " + meta["max-search-record-cnt"]);
-    if(searchRecord != undefined){
-      console.log("서치레코드 길이 ! : " + searchRecord.entries.length);
-    }
-
-    if(keyCompare && valueCompare){
-      // do noting
-      console.log("!!! 검색 기록 겹침 !!!");
-    } else {
-      const now = new Date();
-      const utcString = now.toISOString();
-      searchRecord?.set(utcString, curSearch);
-      setSearchRecord(prev => {
-
-        console.log("셋서치레코드 내 프레브 ! : " + prev?.entries.length);
-
-        const newMap = new Map(prev);
-        newMap.set(utcString, curSearch);
-
-        if(newMap.size > meta["max-search-record-cnt"]){
-          console.log("!!! 기록 한도 초과 !!!");
-          const oldestKey = newMap.keys().next().value; // 맵에서 가장 오래된 키 얻기
-                                                       // 가장 최신 키는 Array.from(newMap.keys()).pop()
-          newMap.delete(oldestKey);
-          console.log("삭제 후 사이즈 !! : " + newMap.size);
-        }
-
-        console.log("최종 뉴맵 사이즈 !!! : " + newMap.size);
-        return newMap;
-      });
-    }
+      console.log("📘 기록 추가 완료 — 현재 크기:", newMap.size);
+      return newMap;
+    });
   };
+
 
   //테스트용 체크박스 선택창에서 ✅ 표시 상태가 바뀔 때마다 콘솔에 찍어보기
   //useEffect(
@@ -288,7 +250,7 @@ function App() {
         currentLang={lang}
         duration={duration}
         selectedIndicators={selectedIndicators}
-        handleSearchRecord={handleSearchRecrod}
+        handleSearchRecord={handleSearchRecord}
         setSearchRecord={setSearchRecord}
       />
       <br></br>

@@ -12,14 +12,11 @@ type ShowGraphProps = {
 
     // for search record
     handleSearchRecord: (curSearch: Record<string, string[]>) => void;
-    setSearchRecord: React.Dispatch<
-        React.SetStateAction<Map<string, Record<string, string[]>>>
-    >;
 };
 
 function ShowGraph(
     { 
-        appMeta, currentLang, duration, selectedIndicators,handleSearchRecord, setSearchRecord
+        appMeta, currentLang, duration, selectedIndicators, handleSearchRecord
     }: ShowGraphProps
 ) {
 
@@ -67,7 +64,6 @@ function ShowGraph(
         setShowGraphs(true);
 
         handleSearchRecord(sortedIndicators);
-        console.log("!!! 그래프 그리기 버튼 누름 후 처리 함수 끝 !!!");
     };
 
     return (
