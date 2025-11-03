@@ -75,94 +75,13 @@ function App() {
   // 기간 선택 : default 기간은 최근 1 년
   const [duration, setDuration] = useState<number>(1);
 
-  // 검색 기록 보관용
-  const [searchRecord, setSearchRecord] = useState<Map<string, Record<string, string[]>>>(new Map());
-  const [searchDuration, setSearchDuration] = useState<Map<string, number>>(new Map());
-  const handleSearchRecord = (curSearch: Record<string, string[]>, curDuration: number) => {
-    if(meta === null || meta === undefined){
-      return;
-    }
-
-    // 맵이 비어있으면 바로 추가
-    if (searchRecord.size === 0) {
-      const now = new Date().toISOString();
-      setSearchRecord( new Map([[now, curSearch]]) );
-      setSearchDuration( new Map([[now, curDuration]]) );
-      return;
-    }
-
-    // 최신 기록 가져오기
-    const latestKey = Array.from(searchRecord.keys()).pop();
-    const latestValue = latestKey ? searchRecord.get(latestKey) : undefined;
-    const latestDuration = latestKey ? searchDuration.get(latestKey) : undefined;
-
-    // 최신 기록과 동일한지 비교(JSON 문자열 비교)
-    const isValueDuplicate =
-      latestValue && JSON.stringify(latestValue) === JSON.stringify(curSearch);
-    const isDurationDuplicate =
-      latestDuration === curDuration;
-
-    if (isValueDuplicate && isDurationDuplicate) {
-      return; // 현재 검색과 가장 최근 기록이 중복이면 아무 것도 안 함
-    }
-
-    // 새로운 맵 생성 (이전 상태 복제)
-    const now = new Date().toISOString();
-    const maxCnt = meta["max-search-record-cnt"];
-
-    setSearchRecord(prev => {
-      const newMap = new Map(prev);
-      newMap.set(now, curSearch);
-
-      // 개수 초과 시, 가장 오래된 키 삭제
-      if (newMap.size > maxCnt) {
-        const oldestKey = newMap.keys().next().value;
-        if (oldestKey !== undefined) {
-          newMap.delete(oldestKey);
-        }
-      }
-
-      console.log("📘 검색 인덱스 기록 추가 완료 — 현재 크기:", newMap.size);
-      return newMap;
-    });
-
-    setSearchDuration(prev => {
-      const newMap = new Map(prev);
-      newMap.set(now, curDuration);
-
-      // 개수 초과 시, 가장 오래된 키 삭제
-      if (newMap.size > maxCnt) {
-        const oldestKey = newMap.keys().next().value;
-        if (oldestKey !== undefined) {
-          newMap.delete(oldestKey);
-        }
-      }
-
-      console.log("📘 검색 기간 추가 완료 — 현재 크기:", newMap.size);
-      return newMap;
-    });
-  };
-
-
   //테스트용 체크박스 선택창에서 ✅ 표시 상태가 바뀔 때마다 콘솔에 찍어보기
-  //useEffect(
+  // useEffect(
   //  () => {
   //    console.log("✅ 현재 선택된 key:", selectedIndicators);
   //    console.log(" 현재 선택된 기간 : ", duration)
   //  }, [selectedIndicators]
-  //); // <- selectedKeys가 바뀔 때마다 실행
-
-  //테스트용 '그래프 그리기' 버튼 누를 때마다 콘솔에 찍어보기
-  useEffect(
-    () => {
-      console.log("✅ 현재 검색 인덱스 기록:", searchRecord);
-    }, [searchRecord]
-  ); // <- searchRecord가 바뀔 때마다 실행
-  useEffect(
-    () => {
-      console.log("✅ 현재 검색 기간 기록:", searchDuration);
-    }, [searchDuration]
-  ); // <- searchDuration가 바뀔 때마다 실행
+  // ); // <- selectedKeys가 바뀔 때마다 실행
 
   if(!meta) return (<div>Loading...</div>);
 
@@ -172,49 +91,6 @@ function App() {
 
   return (
   <div>
-    {/*Left Sidebar*/}
-    <Drawer
-      variant="permanent"
-      sx={{
-        width: leftSidebarWidth,
-        flexShrink: 0,
-        [`& .MuiDrawer-paper`]: {
-          width: leftSidebarWidth,
-          boxSizing: "border-box",
-          backgroundColor: "#1e1e1e",
-          color: "white",
-          borderRight: "none",
-        },
-      }}
-    >
-      <Toolbar />
-      <Box
-        sx={{
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "space-between",
-          py: 2,
-        }}
-      >
-        {/* 상단 아이콘들 */}
-        <Stack spacing={2} alignItems="center">
-          
-          <IconButton color="inherit">
-            <AccessTimeIcon />
-          </IconButton>
-        </Stack>
-
-        <Divider sx={{ width: "80%", backgroundColor: "#444" }} />
-
-        {/* 하단 아이콘 (예: 설정) */}
-        <IconButton color="inherit">
-          <SettingsIcon />
-        </IconButton>
-      </Box>
-    </Drawer>
-
     <Box
       component="main"
       sx={{
@@ -281,7 +157,6 @@ function App() {
         currentLang={lang}
         duration={duration}
         selectedIndicators={selectedIndicators}
-        handleSearchRecord={handleSearchRecord}
       />
       <br></br>
 

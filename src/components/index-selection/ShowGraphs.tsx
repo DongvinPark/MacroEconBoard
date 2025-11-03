@@ -9,14 +9,11 @@ type ShowGraphProps = {
     currentLang: string;
     duration: number;
     selectedIndicators: Record<string, string[]>;
-
-    // for search record
-    handleSearchRecord: (curSearch: Record<string, string[]>, curDuration: number) => void;
 };
 
 function ShowGraph(
     { 
-        appMeta, currentLang, duration, selectedIndicators, handleSearchRecord
+        appMeta, currentLang, duration, selectedIndicators
     }: ShowGraphProps
 ) {
 
@@ -62,8 +59,6 @@ function ShowGraph(
         // 로딩 완료 후 그래프 표시
         setLoading(false);
         setShowGraphs(true);
-
-        handleSearchRecord(sortedIndicators, duration);
     };
 
     return (
