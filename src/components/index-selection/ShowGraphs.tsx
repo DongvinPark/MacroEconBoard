@@ -45,8 +45,10 @@ function ShowGraph(
 
     // 버튼 클릭 시 로직
     const handleShowGraphs = async () => {
+        // 이미 보여지는 중이면 새 탭에서 새 검색을 진행하게 만든다.
+        // 탭이 곳 검색 기록 역할을 하게 된다.
         if (showGraphs) {
-            setShowGraphs(false); // 이미 보여지는 중이면 숨기기
+            window.open("http://localhost:5173");
             return;
         }
 
@@ -66,7 +68,7 @@ function ShowGraph(
             <button
                 onClick={handleShowGraphs}
                 style={{
-                    backgroundColor: "#007bff",
+                    backgroundColor: "#00703C",
                     color: "white",
                     padding: "10px 20px",
                     borderRadius: "8px",
@@ -77,8 +79,8 @@ function ShowGraph(
                 {loading
                     ? "Loading..."
                     : showGraphs
-                    ?  "Hide Graphs"
-                    : appMeta["contents-text"][currentLang]["show-graph"] || "Show Graphs"
+                    ?  appMeta["contents-text"][currentLang]["new-search"]
+                    : appMeta["contents-text"][currentLang]["show-graph"]
                 }
             </button>
 
