@@ -58,6 +58,8 @@ function ShowGraph(
         setShowGraphs(false);
         
         // 실제 fetch 시뮬레이션용(예: API 통신 대기). TODO : 리턴 타입 설정해야 한다!!!
+        // React에서는 async 함수를 호출하더라도, await를 앞에 붙여서 호출하지 않으면
+        // 말 그대로 'wait'를 하지 않는다.
         await downloadJsonFilesForGraph({
             appMeta, currentLang, duration, sortedIndicators
         });
