@@ -3,6 +3,7 @@ import type { AppMeta } from "../../utils/AppMeta";
 import CandleChart from "../../components/test-charts/CandleChart";
 import LineChart from "../../components/test-charts/LineChart";
 import ChartWithEvent from "../../components/test-charts/ChartWithEvent";
+import downloadJsonFilesForGraph from "../../components/downloader/JsonFileDownloader";
 
 type ShowGraphProps = {
     appMeta: AppMeta;
@@ -38,10 +39,10 @@ function ShowGraph(
             return acc;
         }, {} as Record<string, string[]>);
 
-    //console.log("!!! 쇼프래프 내 출력 !!!");
-    //Object.entries(sortedIndicators).forEach(([key, val]) =>
+    //console.log("!!! 쇼그래프 API 호출용 인디케이터 선택 리스트 출력 !!!");
+    // Object.entries(sortedIndicators).forEach(([key, val]) =>
     //    console.log(`${key}: ${val[1]}`)
-    //);
+    // );
 
     // 버튼 클릭 시 로직
     const handleShowGraphs = async () => {
@@ -55,8 +56,11 @@ function ShowGraph(
         // 그래프 로딩 시작
         setLoading(true);
         setShowGraphs(false);
-        // 실제 fetch 시뮬레이션 (예: API 통신 대기). 나중엔 여기를 실제 API 호출로 바꾼다.
-        await new Promise((resolve) => setTimeout(resolve, 1500)); // 1.5초 대기
+        
+        // 실제 fetch 시뮬레이션용(예: API 통신 대기). TODO : 리턴 타입 설정해야 한다!!!
+        await downloadJsonFilesForGraph({
+            appMeta, currentLang, duration, sortedIndicators
+        });
 
         // 로딩 완료 후 그래프 표시
         setLoading(false);
