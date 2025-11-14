@@ -12,59 +12,97 @@ type GraphData = Map<
 >;
 
 async function downloadJsonFilesForGraph(
-    {appMeta, currentLang, duration, sortedIndicators}: JsonFileDownloaderProps
-){
-    // 실제 api 호출 진행
-    // event fetch는 나중에 BE 구축되면 한다.
-    // TODO : 404 not found, 각종 예외, 없는 파일들에 대한 처리, 지나치게 오래 걸릴 경우의 처리등
-    // TODO : 각종 엣지 케이스들에 대응하면서 coucurrency 를 도입해야 한다.
-    const currentYear: number = new Date().getFullYear();
-    const cdnRoot: string = appMeta['cdn-root-url'];
+    { appMeta, currentLang, duration, sortedIndicators }: JsonFileDownloaderProps
+) {
+    const currentYear = new Date().getFullYear();
+    const cdnRoot = appMeta["cdn-root-url"];
+    const resultMap: GraphData = new Map();
+    // 동시성 제한 함수 (p-limit 방식을 따르도록 구현)
+    const limiter = createLimiter(10); // 동시 실행 최대 10개 (실제 AWS Cloudfront 환경에서 안정적인 값)r
 
-    var resultMap: GraphData = new Map();
-    const len: number = Object.entries(sortedIndicators).length;
-    for(var i = 0; i<len; i++){
-        var jsonArr: {time: string, value: number}[] = [];
-        const indexName: string = Object.entries(sortedIndicators)[i][0];
-        const categoryName: string = sortedIndicators[indexName][0];
-        for(
-            var startYear = currentYear - duration;
-            startYear<currentYear + 1;
-            startYear++
-        ){
-            var reqUrl = cdnRoot;
-            if(startYear < currentYear){
-                reqUrl += ( 
-                    "past-year/" + categoryName + "/" + indexName + "/"
-                    + String(startYear) + "-" + indexName + ".json"
-                );
-            } else {
-                reqUrl += ( 
-                    "this-year/" + categoryName + "/" + indexName + "/"
-                    + String(startYear) + "-" + indexName + ".json"
-                );
-            }
-            const response = await fetch(reqUrl);
-            if (!response.ok){
-                throw new Error(`HTTP error! status : ${response.status}`);
-            }
-            const rawData = await response.json();
-            var converted;
-            if(rawData.length > 0 && "value" in rawData[0]){
-                converted = rawData;
-            } else {
-                converted = rawData.map(({ time, close }) => ({ time, value: close }));
-            }
-            jsonArr.push(...converted);
-        }//inner for
+    // 각 indexName 별로 전체 요청을 모아서 병렬 실행
+    for (const [indexName, [categoryName]] of Object.entries(sortedIndicators)) {
+        const tasks: Promise<{ time: string; value: number }[]>[] = [];
 
-        // put to Map
-        resultMap.set(indexName, jsonArr);
-    }//outer for
+        // 이 루프에서는 Promise 타입 태스크들을 만들어서 tasks 라는 일종의 큐에 집어 넣으며 실행시킨다.
+        for (let year = currentYear - duration; year <= currentYear; year++) {
+            const isPast = year < currentYear;
+            const base = isPast ? "past-year" : "this-year";
 
-    console.log("!!! api fetch 결과 테스트용 !!!");
+            const url =
+                `${cdnRoot}${base}/${categoryName}/${indexName}/` +
+                `${year}-${indexName}.json`;
+
+            // limit() 안에 fetch 작업을 넣어 동시성 제한
+            const task = limiter(
+                async () => {
+                    const res = await fetch(url);
+                    if (!res.ok) return []; // 404 등 무시 (엣지 케이스 대응 코드 추가할 수 있음)
+
+                    const raw = await res.json();
+                    if (raw.length > 0 && "value" in raw[0]) {
+                        return raw; // 이미 { time, value } 타입의 json일 경우.
+                    } else {
+                        // {time, open, high, ..., close} 같은 캔들형 json일 경우.
+                        return raw.map(
+                            ( { time, close }: any ) => ( {time, value: close} )
+                        );
+                    }
+                }
+            );
+            tasks.push(task);
+        }
+        // indexName 의 모든 연도 fetch가 완료될 때까지 '기다린다'.
+        const allResults = (await Promise.all(tasks)).flat();
+        // 시간순 정렬(그래프 그릴 때 사용돼야 하므로) 후 맵에 셋팅
+        allResults.sort((a, b) => a.time.localeCompare(b.time));
+        resultMap.set(indexName, allResults);
+    }
+    console.log("!!! json downloader api fetching 결과 !!!");
     console.log(resultMap);
     return resultMap;
+}
+
+
+// --- 동시성 제한기 (p-limit 대체) ---
+/*
+Javascript, Typescript는 Java/C++의 스레드 개념이 없다.
+대신 '이벤트 루프' + 'Promise 객체'로 동시성을 제어한다.
+즉 스레드 풀, 세마포어, 뮤텍스 대신
+Promise를 큐에 넣어 두고 순서대로 resolve 해주는 방식으로 동시성을 제한한다.
+*/
+function createLimiter(max: number) {
+    // createLimiter 함수는 함수 객체를 리턴하는 팩토리 함수다. Java/C++ 의 클래스와 거의 똑같이 기능한다.
+    let running = 0;
+    const queue: Function[] = [];
+
+    // JS/TS 에서는 함수도 객체 취급이다. 변수처럼 정의 및 리턴 될 수 있다.
+    const next = () => {
+        if (running >= max) return;
+        const fn = queue.shift(); // queue.poll()과 같다.
+        if (!fn) return;
+        running++;
+        fn().finally( // 여기가 실제 비동기 fetching 작업을 처리하는 곳이다.
+            () => {
+                running--;
+                next();
+            }
+        );
+    };
+
+    /*
+    limiter<T> 에서 T는 프로미스의 결과물의 타입이다.
+    프로미스가 어떤 타입을 다룰지 모르기 때문에 generic T로 쓴 것.
+    */
+    return function limiter<T>(
+        fn: () => Promise<T>//limiter 라는 함수는 아무 입력을 받지 않고 프로미스를 반환하는 함수 1 개를 인자로서 받는다.
+    ): Promise<T> {
+        return new Promise((resolve, reject) => {
+            const run = () => { fn().then(resolve).catch(reject) };
+            queue.push(run);
+            next(); // 바로 위에 정의돼 있는 next 라는 함수객체를 실행시킨다.
+        });
+    };
 }
 
 export default downloadJsonFilesForGraph;
