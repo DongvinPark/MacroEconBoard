@@ -98,7 +98,7 @@ function createLimiter(max: number) {
         fn: () => Promise<T>//limiter 라는 함수는 아무 입력을 받지 않고 프로미스를 반환하는 함수 1 개를 인자로서 받는다.
     ): Promise<T> {
         return new Promise((resolve, reject) => {
-            const run = () => { fn().then(resolve).catch(reject) };
+            const run = () => fn().then(resolve).catch(reject);
             queue.push(run);
             next(); // 바로 위에 정의돼 있는 next 라는 함수객체를 실행시킨다.
         });
