@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { AppMeta } from "../../utils/AppMeta";
 import CandleChart from "../../components/test-charts/CandleChart";
 import LineChart from "../../components/test-charts/LineChart";
@@ -11,6 +11,10 @@ type ShowGraphProps = {
     duration: number;
     selectedIndicators: Record<string, string[]>;
 };
+
+type GraphData = Map<
+    string, {time: string, value: number}[]
+>;
 
 function ShowGraph(
     { 
@@ -26,6 +30,7 @@ function ShowGraph(
     // 상태 정의
     const [showGraphs, setShowGraphs] = useState(false);  // 그래프 표시 여부
     const [loading, setLoading] = useState(false);         // 로딩 중 여부
+    const [graphData, setGraphData] = useState(new Map()); // 실제 그래프 표시용 데이터
 
     /*
     { kospi: ["kr", "000"], kosdaq: ["kr", "001"] } 과 같은 Record를
@@ -60,14 +65,23 @@ function ShowGraph(
         // 실제 fetch 시뮬레이션용(예: API 통신 대기). TODO : 리턴 타입 설정해야 한다!!!
         // React에서는 async 함수를 호출하더라도, await를 앞에 붙여서 호출하지 않으면
         // 말 그대로 'wait'를 하지 않는다.
-        await downloadJsonFilesForGraph({
+        const graphDataAsync: GraphData = await downloadJsonFilesForGraph({
             appMeta, currentLang, duration, sortedIndicators
         });
+        setGraphData(graphDataAsync);
 
         // 로딩 완료 후 그래프 표시
         setLoading(false);
         setShowGraphs(true);
     };
+
+    // fetching api 호출 결과 테스트용
+    // useEffect(
+    //  () => {
+    //    console.log("!!! json download api fecthing 결과 !!!");
+    //    console.log(graphData)
+    //  }, [graphData]
+    // ); // <- graphData 가 바뀔 때마다 실행
 
     return (
         <div style={{ textAlign: "center", marginTop: "20px" }}>

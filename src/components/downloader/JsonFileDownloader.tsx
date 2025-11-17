@@ -58,8 +58,6 @@ async function downloadJsonFilesForGraph(
         allResults.sort((a, b) => a.time.localeCompare(b.time));
         resultMap.set(indexName, allResults);
     }
-    console.log("!!! json downloader api fetching 결과 !!!");
-    console.log(resultMap);
     return resultMap;
 }
 
