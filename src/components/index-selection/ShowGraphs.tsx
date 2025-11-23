@@ -6,6 +6,7 @@ import ChartWithEvent from "../../components/test-charts/ChartWithEvent";
 import downloadJsonFilesForGraph from "../../components/downloader/JsonFileDownloader";
 import type { Event } from "../../components/downloader/EventJsonDownloader";
 import { loadEventsData } from "../../components/downloader/EventJsonDownloader";
+import getIndexMeta from "../downloader/FilterIndexMeta";
 
 type ShowGraphProps = {
     appMeta: AppMeta;
@@ -82,6 +83,11 @@ function ShowGraph(
     //  () => {
     //    console.log("!!! json download api fecthing 결과 !!!");
     //    console.log(events or graphData)
+    //    console.log("!!! 인덱스 메타 찾기 테스트 !!!")
+    //    console.log(
+    //      //Props 를 정의해서 호출할 때는 인자를 아래와 같은 key-value 쌍의 집합으로 넘겨줘야 한다.
+    //      getIndexMeta({meta: appMeta, categoryName: "kr", indexName:"kospi"})
+    //    );
     //  }, [events or graphData]
     // ); // <- graphData 가 바뀔 때마다 실행
 

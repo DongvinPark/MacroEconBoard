@@ -13,6 +13,7 @@ export type LocalizedCategoryText = Record<string, string>;
 export type IndexItem = {
     key: string;
     name: LocalizedIndexText; // 언어별 지표명
+    info: LocalizedIndexText; // 언어별 메타데이터 또는 별도 설명용 정보
     "y-axis-unit": string; // "", "%", "$", "원" 등
 };
 
