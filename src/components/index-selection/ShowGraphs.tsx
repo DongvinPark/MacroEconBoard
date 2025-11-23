@@ -4,6 +4,8 @@ import CandleChart from "../../components/test-charts/CandleChart";
 import LineChart from "../../components/test-charts/LineChart";
 import ChartWithEvent from "../../components/test-charts/ChartWithEvent";
 import downloadJsonFilesForGraph from "../../components/downloader/JsonFileDownloader";
+import type { Event } from "../../components/downloader/EventJsonDownloader";
+import { loadEventsData } from "../../components/downloader/EventJsonDownloader";
 
 type ShowGraphProps = {
     appMeta: AppMeta;
@@ -22,15 +24,11 @@ function ShowGraph(
     }: ShowGraphProps
 ) {
 
-    // TODO : API 서버한테 이벤트 리스트 GET 요청 해야한다. 1 번이면 된다.
-    // TODO : CDN 서버한테 json들 GET 요청 하되, 5개의 스레드로 concurrent 하게 처리해야 한다.
-    // TODO : 이러한 fetch 작업에 시간이 오래 걸린다면 작업이 진행 중이라는 걸 알려주는 게 필요하다.
-    // TODO : 그래프별로 한 줄 정도의 간단한 설명이 필요할 수 있다. 예를 들면 '종가 기준' 등등.
-
     // 상태 정의
     const [showGraphs, setShowGraphs] = useState(false);  // 그래프 표시 여부
     const [loading, setLoading] = useState(false);         // 로딩 중 여부
     const [graphData, setGraphData] = useState(new Map()); // 실제 그래프 표시용 데이터
+    const [events, setEvents] = useState<Event[]>(); // 이벤트 정보
 
     /*
     { kospi: ["kr", "000"], kosdaq: ["kr", "001"] } 과 같은 Record를
@@ -70,6 +68,10 @@ function ShowGraph(
         });
         setGraphData(graphDataAsync);
 
+        // 이벤트 정보 다운로드
+        const loadedEvents: Event[] = await loadEventsData();
+        setEvents(loadedEvents);
+
         // 로딩 완료 후 그래프 표시
         setLoading(false);
         setShowGraphs(true);
@@ -79,8 +81,8 @@ function ShowGraph(
     // useEffect(
     //  () => {
     //    console.log("!!! json download api fecthing 결과 !!!");
-    //    console.log(graphData)
-    //  }, [graphData]
+    //    console.log(events or graphData)
+    //  }, [events or graphData]
     // ); // <- graphData 가 바뀔 때마다 실행
 
     return (
