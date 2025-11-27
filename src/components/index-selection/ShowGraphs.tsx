@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import type { AppMeta } from "../../utils/AppMeta";
+import type { AppMeta, IndexItem } from "../../utils/AppMeta";
 import CandleChart from "../../components/test-charts/CandleChart";
 import LineChart from "../../components/test-charts/LineChart";
 import ChartWithEvent from "../../components/test-charts/ChartWithEvent";
 import downloadJsonFilesForGraph from "../../components/downloader/JsonFileDownloader";
 import type { Event } from "../../components/downloader/EventJsonDownloader";
 import { loadEventsData } from "../../components/downloader/EventJsonDownloader";
-import getIndexMeta from "../downloader/FilterIndexMeta";
+import { getIndexMetaList } from "../downloader/FilterIndexMeta";
 
 type ShowGraphProps = {
     appMeta: AppMeta;
@@ -28,7 +28,10 @@ function ShowGraph(
     // 상태 정의
     const [showGraphs, setShowGraphs] = useState(false);  // 그래프 표시 여부
     const [loading, setLoading] = useState(false);         // 로딩 중 여부
+
     const [graphData, setGraphData] = useState(new Map()); // 실제 그래프 표시용 데이터
+                        // useState<...>(...); 여기에서 <> 안의 ... 부분에 타입을 꼭 정의해줘야 한다.
+    const [graphMeta, setGraphMeta] = useState<IndexItem[]>([]); // 그래프 표시용 메타데이터
     const [events, setEvents] = useState<Event[]>(); // 이벤트 정보
 
     /*
@@ -61,13 +64,16 @@ function ShowGraph(
         setLoading(true);
         setShowGraphs(false);
         
-        // 실제 fetch 시뮬레이션용(예: API 통신 대기). TODO : 리턴 타입 설정해야 한다!!!
         // React에서는 async 함수를 호출하더라도, await를 앞에 붙여서 호출하지 않으면
         // 말 그대로 'wait'를 하지 않는다.
         const graphDataAsync: GraphData = await downloadJsonFilesForGraph({
             appMeta, currentLang, duration, sortedIndicators
         });
         setGraphData(graphDataAsync);
+
+        // 그래프 메타데이터 검색 후 초기화
+        const graphMeta: IndexItem[] = getIndexMetaList(appMeta, sortedIndicators);
+        setGraphMeta(graphMeta);
 
         // 이벤트 정보 다운로드
         const loadedEvents: Event[] = await loadEventsData();
@@ -81,14 +87,12 @@ function ShowGraph(
     // fetching api 호출 결과 테스트용
     // useEffect(
     //  () => {
-    //    console.log("!!! json download api fecthing 결과 !!!");
-    //    console.log(events or graphData)
-    //    console.log("!!! 인덱스 메타 찾기 테스트 !!!")
+    //    console.log("!!! json fetching OR index meta OR event json !!!")
     //    console.log(
     //      //Props 를 정의해서 호출할 때는 인자를 아래와 같은 key-value 쌍의 집합으로 넘겨줘야 한다.
-    //      getIndexMeta({meta: appMeta, categoryName: "kr", indexName:"kospi"})
+    //      graphMeta or graphData or events
     //    );
-    //  }, [events or graphData]
+    //  }, [graphMeta or graphData or events]
     // ); // <- graphData 가 바뀔 때마다 실행
 
     return (

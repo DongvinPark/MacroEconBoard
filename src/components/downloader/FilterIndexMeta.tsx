@@ -6,7 +6,27 @@ type IndexMetaProps = {
     indexName: string;
 }
 
-export function getIndexMeta(
+// ex
+// sortedIndicators == { kospi: ["kr", "000"], kosdaq: ["kr", "001"] }
+export function getIndexMetaList(
+  meta: AppMeta, sortedIndicators: Record<string, string[]>
+) {
+  let list: IndexItem[] = [];
+  const keys: string[] = Object.keys(sortedIndicators);
+
+  for (let i=0; i<keys.length; i++){
+    const indexName: string = keys[i];
+    const categoryName: string = sortedIndicators[indexName][0];
+    const indexItem: IndexItem|null = getIndexMeta({meta, categoryName, indexName});
+    if(indexItem !== null){
+      list.push(indexItem);
+    }
+  }
+
+  return list;
+}
+
+function getIndexMeta(
     {meta, categoryName, indexName}: IndexMetaProps
 ): IndexItem | null {
     const categoryList: Category[] = meta.index[categoryName];
@@ -58,4 +78,4 @@ export function getIndexMeta({
 
 */
 
-export default getIndexMeta;
+export default getIndexMetaList;
