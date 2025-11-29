@@ -144,20 +144,30 @@ function ShowGraph(
                 </div>
             )}
 
-            {/* ✅ 그래프 표시. TODO : API 를 통해서 fetch 한 데이터들로 차트들을 만들어야 한다.*/}
+            {/*
+            >>> 그래프 렌더링용 컴포넌트에 인자들 전달할 때 필요한 데이터들 정리.
+            graphData : Map< string, {time: string, value: number}[] > 타입.
+                      : ex : { kospi, [ {time, value}, ..., {time, value}] } 이런 모양이다.
+            graphMeta : IndexItem[] 타입. 그래프의 제목, Y축 단위, 부연 설명 이 3 가지를 언어에 맞춰 렌더링.
+                        IndexItem 내의 key 필드의 값을 가지고, graphData 맵에서 get()을 호출하면 된다.
+            events : 그래프마다 그냥 그대로 넘긴다. Event[] 타입. 렌더링은 Chart 류 컴포넌트에서 담당한다.
+            */}
             {showGraphs && !loading && (
                 <div style={{ textAlign: "left", marginTop: "40px" }}>
-                    <h2 style={{ color: "green" }}>Test Candle Chart</h2>
-                    <p>{"test meta data 1"}</p>
-                    <CandleChart />
+                    
+                    <h2 style={{ color: "green" }}>
+                        {graphMeta[0].name[currentLang] + (
+                            graphMeta[0]["y-axis-unit"] === "" ?
+                            "" : ( "(" + graphMeta[0]["y-axis-unit"] + ")" )
+                        )}
+                    </h2>
+                    <p>{graphMeta[0].info[currentLang]}</p>
+                    <ChartWithEvent
+                        timeAndValueData={graphData.get(graphMeta[0].key)}
+                        eventData={events === undefined ? [] : events}
+                        graphName={graphMeta[0].key}
+                    />
 
-                    <h2 style={{ color: "green" }}>{"Test line Chart" + "(" + "%" + ")"}</h2>
-                    <p>{/* empty meta data */}</p>
-                    <LineChart />
-
-                    <h2 style={{ color: "green" }}>Test Chart with Event</h2>
-                    <p>{"test meta data 2"}</p>
-                    <ChartWithEvent />
                 </div>
             )}
         </div>

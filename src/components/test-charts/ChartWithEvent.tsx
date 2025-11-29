@@ -1,10 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import { createChart, type IChartApi, type LineData } from "lightweight-charts";
+import type { Event } from "../../components/downloader/EventJsonDownloader"
 
-const ChartWithEvent: React.FC = () => {
+type GraphProps = {
+  timeAndValueData: {time: string, value: number}[];
+  eventData: Event[];
+  graphName: string;
+};
+
+const ChartWithEvent: React.FC<GraphProps> = ({timeAndValueData, eventData, graphName}) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const [tooltip, setTooltip] = useState<any>(null);
+
+  // console.log("!!! 이벤트 테스트 !!! : ");
+  // console.log(eventData[0]);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -60,19 +70,11 @@ const ChartWithEvent: React.FC = () => {
     const kospiSeries = chart.addLineSeries({
       color: "#d00",
       lineWidth: 2,
-      title: "KOSPI",
+      title: "",
     });
 
     kospiSeries.setData(
-      [
-        { time: "2022-01-01", value: 2900 },
-        { time: "2022-07-01", value: 2350 },
-        { time: "2023-01-01", value: 2500 },
-        { time: "2023-07-01", value: 2600 },
-        { time: "2024-01-01", value: 2200 },
-        { time: "2024-07-01", value: 2800 },
-        { time: "2025-01-01", value: 3748 },
-      ]
+      timeAndValueData
     );
 
     chart.timeScale().fitContent();
