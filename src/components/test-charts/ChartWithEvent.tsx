@@ -13,11 +13,9 @@ const ChartWithEvent: React.FC<GraphProps> = ({timeAndValueData, eventData, grap
   const chartRef = useRef<IChartApi | null>(null);
   const [tooltip, setTooltip] = useState<any>(null);
 
-  // console.log("!!! 이벤트 테스트 !!! : ");
-  // console.log(eventData[0]);
-
   useEffect(() => {
     if (!chartContainerRef.current) return;
+    if (!timeAndValueData?.length) return; // 데이터 없으면 생성 금지
 
     const chart = createChart(chartContainerRef.current, {
       width: chartContainerRef.current.clientWidth,
@@ -61,7 +59,7 @@ const ChartWithEvent: React.FC<GraphProps> = ({timeAndValueData, eventData, grap
         },
       },
       crosshair: { mode: 1 },
-      handleScroll: { vertTouchDrag: false },
+      handleScroll: { vertTouchDrag: true },
       handleScale: { pinch: true },
     });
 
@@ -78,6 +76,7 @@ const ChartWithEvent: React.FC<GraphProps> = ({timeAndValueData, eventData, grap
     );
 
     chart.timeScale().fitContent();
+    chart.timeScale().scrollToRealTime();
 
     // 🎯 터치/마우스 이동 이벤트
     chart.subscribeCrosshairMove((param) => {
@@ -105,13 +104,13 @@ const ChartWithEvent: React.FC<GraphProps> = ({timeAndValueData, eventData, grap
       resizeObserver.disconnect();
       chart.remove();
     };
-  }, []);
+  }, [timeAndValueData]);
 
   return (
     <div style={{ position: "relative" }}>
       <div
         ref={chartContainerRef}
-        style={{ height: 300, backgroundColor: "#eee" }} 
+        style={{ width: "100%", height: 300, backgroundColor: "#eee" }} 
       />
       {tooltip && (
         <div

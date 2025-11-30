@@ -154,20 +154,26 @@ function ShowGraph(
             */}
             {showGraphs && !loading && (
                 <div style={{ textAlign: "left", marginTop: "40px" }}>
-                    
-                    <h2 style={{ color: "green" }}>
-                        {graphMeta[0].name[currentLang] + (
-                            graphMeta[0]["y-axis-unit"] === "" ?
-                            "" : ( "(" + graphMeta[0]["y-axis-unit"] + ")" )
-                        )}
-                    </h2>
-                    <p>{graphMeta[0].info[currentLang]}</p>
-                    <ChartWithEvent
-                        timeAndValueData={graphData.get(graphMeta[0].key)}
-                        eventData={events === undefined ? [] : events}
-                        graphName={graphMeta[0].key}
-                    />
-
+                {
+                    graphMeta.map(
+                        (indicatorMeta) => (
+                            <div key={indicatorMeta.key}>
+                                <h2 style={{ color: "green" }}>
+                                    {indicatorMeta.name[currentLang] + (
+                                        indicatorMeta["y-axis-unit"] === "" ?
+                                        "" : ( "(" + indicatorMeta["y-axis-unit"] + ")" )
+                                    )}
+                                </h2>
+                                <p>{indicatorMeta.info[currentLang]}</p>
+                                <ChartWithEvent
+                                    timeAndValueData={graphData.get(indicatorMeta.key)}
+                                    eventData={events === undefined ? [] : events}
+                                    graphName={graphMeta[0].key}
+                                />
+                            </div>
+                        )
+                    )
+                }
                 </div>
             )}
         </div>
