@@ -91,14 +91,6 @@ function App() {
 
   return (
   <div>
-    <Box
-      component="main"
-      sx={{
-        flexGrow: 1,
-        ml: `${leftSidebarWidth}px`, // ← 사이드바 폭만큼 오른쪽으로 밀기
-        p: 2,
-      }}
-    >
       {/*Header*/}
       <Box
         component="header"
@@ -167,7 +159,6 @@ function App() {
           {currentText["customer-service"] + " " + meta["developer-email"]}
         </Typography>
       </Box>
-    </Box>
   </div>
 );
 }
