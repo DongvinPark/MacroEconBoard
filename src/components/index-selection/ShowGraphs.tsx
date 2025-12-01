@@ -164,11 +164,22 @@ function ShowGraph(
                                         "" : ( "(" + indicatorMeta["y-axis-unit"] + ")" )
                                     )}
                                 </h2>
-                                <p>{indicatorMeta.info[currentLang]}</p>
+                                <p>
+                                    {
+                                    indicatorMeta.info[currentLang] + (
+                                    duration < 5
+                                    ? ""
+                                    : duration === 5
+                                        ? ("("+appMeta["contents-text"][currentLang]["week-avg"]+")")
+                                        : ("("+appMeta["contents-text"][currentLang]["month-avg"]+")")
+                                    )
+                                    }
+                                </p>
                                 <ChartWithEvent
                                     timeAndValueData={graphData.get(indicatorMeta.key)}
                                     eventData={events === undefined ? [] : events}
                                     graphName={graphMeta[0].key}
+                                    durationYear={duration}
                                 />
                             </div>
                         )
