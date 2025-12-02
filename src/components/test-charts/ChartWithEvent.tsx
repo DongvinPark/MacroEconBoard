@@ -21,14 +21,52 @@ function updateTimeAndValueData(
 
   duration 이 5 년일 때는 월~금 종가 기준 주평균 통계를 내서 timeAndValueData 값 개수를 축소시킨다.
   {time: "?", value: "?"} 에서
-  time : "?" 의 ? 부분 표시는 매주 마지막 영엽일의 YYYY-MM-DD로 맞추고, value는 평균으로 하면 된다.
+  time : "?" 의 ? 부분 표시는 매주 첫 영엽일의 YYYY-MM-DD로 맞추고, value는 평균으로 하면 된다.
 
   duration 이 10년 이상일 때는 월평균 통계를 내서 timeAndValueData 값 개수를 축소시킨다.
   {time: "?", value: "?"} 에서
-  time : "?" 의 ? 부분 표시는 매월 마지막 영업일의 YYYY-MM-DD로 맞추고, vaue는 평균으로 하면 된다.
+  time : "?" 의 ? 부분 표시는 매월 첫 영업일의 YYYY-MM-DD로 맞추고, vaue는 평균으로 하면 된다.
   */
-  let list: {time: string, value: number}[] = [];
-  return list;
+
+  if(duration < 5) { // 변형없이 그대로 리턴
+    return inputList;
+  }
+
+  let resultList: {time: string, value: number}[] = [];
+  if(duration === 5){ // 주 평균 적용
+    // 첫 번째 월요일이 나올 때 까지 버린다.
+
+  } else if(duration > 5) { // 월 평균 적용
+    // Map을 써서 월 별로 모은다.
+    let monthMap: Map<string, { time: string, value: number }[]> = new Map();
+
+    for(let i=0; i<inputList.length; i++){
+      const elem = inputList[i];
+      const monthStr: string = elem.time.substring(0, 7); // "2025-05-25"에서 2025-05 만 가져온다.
+      let monthList = monthMap.get(monthStr);
+      if(monthList == null || monthList == undefined){
+        monthMap.set(monthStr, []); 
+      }
+      monthMap.get(monthStr)!.push(elem);
+    }
+
+
+    // Map 타입 객체는 Object.entries()가 아니라, .entries() 또는 Array.from()으로 다뤄야 한다.
+    // 이걸 Object.entries();로 읽으려고 하면 빈 리스트가 리턴된다.
+    const entries = Array.from(monthMap.entries());
+
+    // 각 월별로 첫 영업일 날짜와 평균 값 구해서 별도의 리스트로 모은다.
+    // TS에서 Map은 입력 순서가 보존된다.
+    for(let i=0; i<entries.length; i++){
+      const list: { time: string, value: number }[] = entries[i][1];
+      const avg = list.reduce((sum, item) => sum + item.value, 0) / list.length;
+      const avgTo3Float = Number(avg.toFixed(3));
+      resultList.push(
+        {time: list[0].time, value: avgTo3Float}
+      );
+    }
+  }
+  return resultList;
 }
 
 const ChartWithEvent: React.FC<GraphProps> = (
@@ -96,8 +134,13 @@ const ChartWithEvent: React.FC<GraphProps> = (
       title: "",
     });
 
+    // durationYear 값에 맞춰서 원본 데이터의 개수를 줄인다(주 평균 또는 월 평균 적용).
+    const timeValueDataForGraph: {time: string, value: number}[] = updateTimeAndValueData(
+      timeAndValueData, durationYear
+    );
+
     kospiSeries.setData(
-      timeAndValueData
+      timeValueDataForGraph
     );
 
     chart.timeScale().fitContent();
