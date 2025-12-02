@@ -33,6 +33,8 @@ function ShowGraph(
                         // useState<...>(...); 여기에서 <> 안의 ... 부분에 타입을 꼭 정의해줘야 한다.
     const [graphMeta, setGraphMeta] = useState<IndexItem[]>([]); // 그래프 표시용 메타데이터
     const [events, setEvents] = useState<Event[]>(); // 이벤트 정보
+    // 그래프 메타데이터 최초 렌더링 후, 해당 표시 내용 고정 용
+    const [frozenDuration, setFrozenDuration] = useState<number>(0);
 
     /*
     { kospi: ["kr", "000"], kosdaq: ["kr", "001"] } 과 같은 Record를
@@ -63,6 +65,9 @@ function ShowGraph(
         // 그래프 로딩 시작
         setLoading(true);
         setShowGraphs(false);
+
+        // 최초 그래프 그릴 때 사용한 duration 값 기록
+        setFrozenDuration(duration);
         
         // React에서는 async 함수를 호출하더라도, await를 앞에 붙여서 호출하지 않으면
         // 말 그대로 'wait'를 하지 않는다.
@@ -167,9 +172,9 @@ function ShowGraph(
                                 <p>
                                     {
                                     indicatorMeta.info[currentLang] + (
-                                    duration < 5
+                                    frozenDuration < 5
                                     ? ""
-                                    : duration === 5
+                                    : frozenDuration === 5
                                         ? ("("+appMeta["contents-text"][currentLang]["week-avg"]+")")
                                         : ("("+appMeta["contents-text"][currentLang]["month-avg"]+")")
                                     )
@@ -179,7 +184,7 @@ function ShowGraph(
                                     timeAndValueData={graphData.get(indicatorMeta.key)}
                                     eventData={events === undefined ? [] : events}
                                     graphName={graphMeta[0].key}
-                                    durationYear={duration}
+                                    durationYear={frozenDuration}
                                 />
                             </div>
                         )
