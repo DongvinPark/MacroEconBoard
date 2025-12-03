@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { createChart, type IChartApi, type LineData } from "lightweight-charts";
 import type { Event } from "../../components/downloader/EventJsonDownloader"
+import { COLORS } from "../../constants/Colors";
+import { DAYS } from "../../constants/Day";
+import { VALUES } from "../../constants/Values";
 
 type GraphProps = {
   timeAndValueData: {time: string, value: number}[];
@@ -28,17 +31,17 @@ function updateTimeAndValueData(
   time : "?" 의 ? 부분 표시는 매월 첫 영업일의 YYYY-MM-DD로 맞추고, vaue는 평균으로 하면 된다.
   */
 
-  if(duration < 5) { // 변형없이 그대로 리턴
+  if(duration < VALUES.durationYearForWeekAvg) { // 변형없이 그대로 리턴
     return inputList;
   }
 
   let resultList: {time: string, value: number}[] = [];
-  if(duration === 5){ // 주 평균 적용
+  if(duration === VALUES.durationYearForWeekAvg){ // 주 평균 적용
     // 첫 번째 월요일이 나오는 인덱스를 기억해 놓는다.
     let firstMonIdx = 0;
     for(let i=0; i<inputList.length; i++){
       const day = new Date(inputList[i].time).getDay();
-      if(day === 1){ // TODO : 나중에 요일별 상수 정의해야 한다.
+      if(day === DAYS.MON){
         firstMonIdx = i;
         break;
       }
@@ -49,7 +52,7 @@ function updateTimeAndValueData(
     for(let i=firstMonIdx; i<inputList.length; i++){
       const plotData = inputList[i];
       const day = new Date(plotData.time).getDay();
-      if(weekList.length === 0 || day === 1){ // TODO : 요일별 상수 따로 정의한다.
+      if(weekList.length === 0 || day === DAYS.MON){
         // 최초 입력 또는 월요일인 경우
         weekList.push([]);
         weekList[weekList.length-1].push(plotData);
@@ -63,12 +66,12 @@ function updateTimeAndValueData(
     for(let i=0; i<weekList.length; i++){
       const list: { time: string, value: number }[] = weekList[i];
       const avg = list.reduce((sum, item) => sum + item.value, 0) / list.length;
-      const avgTo3Float = Number(avg.toFixed(3));
+      const avgTo3Float = Number(avg.toFixed(VALUES.floatFix));
       resultList.push(
         {time: list[0].time, value: avgTo3Float}
       );
     }
-  } else if(duration > 5) { // 월 평균 적용
+  } else if(duration > VALUES.durationYearForWeekAvg) { // 월 평균 적용
     // Map을 써서 월 별로 모은다.
     let monthMap: Map<string, { time: string, value: number }[]> = new Map();
 
@@ -92,7 +95,7 @@ function updateTimeAndValueData(
     for(let i=0; i<entries.length; i++){
       const list: { time: string, value: number }[] = entries[i][1];
       const avg = list.reduce((sum, item) => sum + item.value, 0) / list.length;
-      const avgTo3Float = Number(avg.toFixed(3));
+      const avgTo3Float = Number(avg.toFixed(VALUES.floatFix));
       resultList.push(
         {time: list[0].time, value: avgTo3Float}
       );
@@ -114,18 +117,19 @@ const ChartWithEvent: React.FC<GraphProps> = (
 
     const chart = createChart(chartContainerRef.current, {
       width: chartContainerRef.current.clientWidth,
-      height: 300,
+      height: VALUES.chartHeight,
       layout: {
-        background: { color: "#ffffff" },
-        textColor: "#222",
+        background: { color: COLORS.chartBackgroundColor },
+        textColor: COLORS.chartTextColor,
       },
       grid: {
+                              // 차트 내부에 점선을 긋고 싶을 때 주석 해제.
         vertLines: { visible: /*true, color: "#e6e6e6"*/false },
         horzLines: { visible: /*true, color: "#e6e6e6"*/false },
       },
       rightPriceScale: {
         visible: true,
-        borderColor: "#000",
+        borderColor: COLORS.axisColor,
       },
       timeScale: {
         borderVisible: true,
@@ -161,7 +165,7 @@ const ChartWithEvent: React.FC<GraphProps> = (
     chartRef.current = chart;
 
     const kospiSeries = chart.addLineSeries({
-      color: "#00703C",
+      color: COLORS.rolexGreenColor,
       lineWidth: 2,
       title: "",
     });
@@ -210,7 +214,7 @@ const ChartWithEvent: React.FC<GraphProps> = (
     <div style={{ position: "relative" }}>
       <div
         ref={chartContainerRef}
-        style={{ width: "100%", height: 300, backgroundColor: "#eee" }} 
+        style={{ width: "100%", height: VALUES.chartHeight, backgroundColor: COLORS.eventAreaBackgroundColor }} 
       />
       {tooltip && (
         <div
@@ -222,7 +226,7 @@ const ChartWithEvent: React.FC<GraphProps> = (
           }}
         >
           <div className="font-semibold">{tooltip.time}</div>
-          <div className="text-red-600">KOSPI: {tooltip.kospi}</div>
+          <div className="text-red-600"> {graphName + ": " + tooltip.kospi}</div>
         </div>
       )}
     </div>

@@ -1,13 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   Box,
-  CssBaseline,
-  Drawer,
-  Toolbar,
   Typography,
-  Container,
-  Stack,
-  IconButton,
   Divider,
 } from "@mui/material";
 import CheckBox from "../src/components/index-selection/CheckBox"
@@ -16,20 +10,10 @@ import ShowGraph from "./components/index-selection/ShowGraphs";
 import SelectLang from "./components/languiage/SelectLang";
 import { loadAppMeta, type AppMeta, type ContentsTextWithTranslation, type UiContentText } from "./utils/AppMeta";
 
-import SearchIcon from "@mui/icons-material/Search";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import LanguageIcon from "@mui/icons-material/Language";
-import SettingsIcon from "@mui/icons-material/Settings";
+import { COLORS } from "./constants/Colors";
+import { VALUES } from "./constants/Values";
 
 function App() {
-  const leftSidebarWidth = 23;
-
-  // TODO - 테스트용
-  // (async () => {
-  //   const meta = await loadAppMeta();
-  //   console.log(meta["contents-text"]["ko"].catchphrase);
-  //   console.log(meta.index["kr"][0].items[0].name["ko"])
-  // })();
 
   // app meta 다운로드. 웹앱 구동 시 필수.
   const [meta, setMeta] = useState<AppMeta | null>(null);
@@ -47,8 +31,7 @@ function App() {
     }, []
   );
 
-  // default 언어는 한국어
-  const [lang, setLang] = useState<string>("ko");
+  const [lang, setLang] = useState<string>(VALUES.defaultLang);
 
   // 유저가 선택한 indicator 기록용
   const [selectedIndicators, setSelectedIndicators] = useState<Record<string, string[]>>({});
@@ -87,7 +70,7 @@ function App() {
 
   const uiContentTextMap: ContentsTextWithTranslation = meta["contents-text"];
   // default 언어는 한국어(ko).
-  const currentText: UiContentText = uiContentTextMap[lang] ?? uiContentTextMap["ko"];
+  const currentText: UiContentText = uiContentTextMap[lang] ?? uiContentTextMap[VALUES.defaultLang];
 
   return (
   <div>
@@ -95,8 +78,8 @@ function App() {
       <Box
         component="header"
         sx={{
-          backgroundColor: "#1e1e1e",
-          color: "#fff",
+          backgroundColor: COLORS.titleBoxBackgroudColor,
+          color: COLORS.titleBoxLetterColor,
           p: 2,
         }}
       >
@@ -153,7 +136,7 @@ function App() {
       <br></br>
 
       {/*Footer*/}
-      <Box sx={{ textAlign: "center", color: "#777", mt: 6, width: "100%" }}>
+      <Box sx={{ textAlign: "center", color: COLORS.footerColor, mt: 6, width: "100%" }}>
         <Divider sx={{ my: 3 }} />
         <Typography variant="body2">
           {currentText["customer-service"] + " " + meta["developer-email"]}

@@ -1,3 +1,4 @@
+import { VALUES } from '../../constants/Values';
 import { type AppMeta } from '../../utils/AppMeta'
 
 type JsonFileDownloaderProps = {
@@ -18,7 +19,7 @@ async function downloadJsonFilesForGraph(
     const cdnRoot = appMeta["cdn-root-url"];
     const resultMap: GraphData = new Map();
     // 동시성 제한 함수 (p-limit 방식을 따르도록 구현)
-    const limiter = createLimiter(10); // 동시 실행 최대 10개 (실제 AWS Cloudfront 환경에서 안정적인 값)r
+    const limiter = createLimiter(VALUES.jsonDownloaderThreadCnt); // 동시 실행 최대 10개 (실제 AWS Cloudfront 환경에서 안정적인 값)
 
     // 각 indexName 별로 전체 요청을 모아서 병렬 실행
     for (const [indexName, [categoryName]] of Object.entries(sortedIndicators)) {

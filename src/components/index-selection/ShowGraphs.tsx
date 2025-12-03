@@ -7,6 +7,7 @@ import downloadJsonFilesForGraph from "../../components/downloader/JsonFileDownl
 import type { Event } from "../../components/downloader/EventJsonDownloader";
 import { loadEventsData } from "../../components/downloader/EventJsonDownloader";
 import { getIndexMetaList } from "../downloader/FilterIndexMeta";
+import { COLORS } from "../../constants/Colors";
 
 type ShowGraphProps = {
     appMeta: AppMeta;
@@ -58,7 +59,7 @@ function ShowGraph(
         // 이미 보여지는 중이면 새 탭에서 새 검색을 진행하게 만든다.
         // 탭이 곳 검색 기록 역할을 하게 된다.
         if (showGraphs) {
-            window.open("http://localhost:5173");
+            window.open("http://localhost:5173"); // TODO : 이런 URL은 나중에 .env로 빼야 한다.
             return;
         }
 
@@ -105,7 +106,7 @@ function ShowGraph(
             <button
                 onClick={handleShowGraphs}
                 style={{
-                    backgroundColor: "#00703C",
+                    backgroundColor: COLORS.rolexGreenColor,
                     color: "white",
                     padding: "10px 20px",
                     borderRadius: "8px",
@@ -129,8 +130,8 @@ function ShowGraph(
                             width: "48px",
                             height: "48px",
                             margin: "0 auto",
-                            border: "6px solid #f3f3f3",
-                            borderTop: "6px solid #007bff",
+                            border: "6px solid " + COLORS.spinerBorderColor,
+                            borderTop: "6px solid " + COLORS.spinerCircleColor,
                             borderRadius: "50%",
                             animation: "spin 1s linear infinite",
                         }}

@@ -10,6 +10,7 @@ export type Event = {
 }
 
 export async function loadEventsData(): Promise<Event[]> {
+                                // TODO : 이런 URL은 나중에 .env로 빼야 한다.
     const response = await fetch("http://localhost:8554/events/events.json");
     if (!response.ok){
         throw new Error(`HTTP error! status : ${response.status}`);

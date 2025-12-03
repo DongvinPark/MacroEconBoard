@@ -53,6 +53,7 @@ export type AppMeta = {
 
 
 export async function loadAppMeta(): Promise<AppMeta> {
+                                // TODO : 이런 URL은 나중에 .env로 빼야 한다.
     const response = await fetch("http://localhost:8554/meta/app/app-meta-000.json");
     if (!response.ok){
         throw new Error(`HTTP error! status : ${response.status}`);
