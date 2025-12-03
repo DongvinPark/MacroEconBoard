@@ -34,8 +34,40 @@ function updateTimeAndValueData(
 
   let resultList: {time: string, value: number}[] = [];
   if(duration === 5){ // 주 평균 적용
-    // 첫 번째 월요일이 나올 때 까지 버린다.
+    // 첫 번째 월요일이 나오는 인덱스를 기억해 놓는다.
+    let firstMonIdx = 0;
+    for(let i=0; i<inputList.length; i++){
+      const day = new Date(inputList[i].time).getDay();
+      if(day === 1){ // TODO : 나중에 요일별 상수 정의해야 한다.
+        firstMonIdx = i;
+        break;
+      }
+    }
 
+    let weekList: {time: string, value: number}[][] = [];
+    // 주(월요일 ~ 금요일) 별로 리스트에 담는다.
+    for(let i=firstMonIdx; i<inputList.length; i++){
+      const plotData = inputList[i];
+      const day = new Date(plotData.time).getDay();
+      if(weekList.length === 0 || day === 1){ // TODO : 요일별 상수 따로 정의한다.
+        // 최초 입력 또는 월요일인 경우
+        weekList.push([]);
+        weekList[weekList.length-1].push(plotData);
+      } else {
+        // 그 밖의 요일
+        weekList[weekList.length-1].push(plotData);
+      }
+    }
+
+    // 주 별로 평균 낸 후 리턴
+    for(let i=0; i<weekList.length; i++){
+      const list: { time: string, value: number }[] = weekList[i];
+      const avg = list.reduce((sum, item) => sum + item.value, 0) / list.length;
+      const avgTo3Float = Number(avg.toFixed(3));
+      resultList.push(
+        {time: list[0].time, value: avgTo3Float}
+      );
+    }
   } else if(duration > 5) { // 월 평균 적용
     // Map을 써서 월 별로 모은다.
     let monthMap: Map<string, { time: string, value: number }[]> = new Map();
@@ -104,8 +136,8 @@ const ChartWithEvent: React.FC<GraphProps> = (
       
           const yyyy = dateObj.getFullYear();
           const mm = String(dateObj.getMonth() + 1).padStart(2, "0");
-          const dd = String(dateObj.getDate()).padStart(2, "0");
-          return `${yyyy}-${mm}-${dd}`;
+          //const dd = String(dateObj.getDate()).padStart(2, "0");
+          return `${yyyy}-${mm}`;//`${yyyy}-${mm}-${dd}`;
         },
       },
       localization: {
