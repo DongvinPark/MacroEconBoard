@@ -161,7 +161,7 @@ const ChartWithEvent: React.FC<GraphProps> = (
     chartRef.current = chart;
 
     const kospiSeries = chart.addLineSeries({
-      color: "#d00",
+      color: "#00703C",
       lineWidth: 2,
       title: "",
     });
