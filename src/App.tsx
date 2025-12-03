@@ -158,6 +158,9 @@ function App() {
         <Typography variant="body2">
           {currentText["customer-service"] + " " + meta["developer-email"]}
         </Typography>
+        <Typography variant="body2">
+          {"Version : " + meta["app-version"]}
+        </Typography>
       </Box>
   </div>
 );

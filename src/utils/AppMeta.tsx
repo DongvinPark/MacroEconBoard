@@ -39,7 +39,7 @@ export type UiContentText = {
 export type ContentsTextWithTranslation = Record<string, UiContentText>;
 
 export type AppMeta = {
-    "meta-version": string;
+    "app-version": string;
     "developer-email": string;
     "cdn-root-url": string;
     "supporting-duration-years": number[];
