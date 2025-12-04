@@ -177,11 +177,7 @@ function ShowGraph(
                                         "" : ( "(" + indicatorMeta["y-axis-unit"] + ")" )
                                     )}
                                 </div>
-                                <div
-                                    style={{ 
-                                        fontWeight: "bold"
-                                    }}
-                                >
+                                <div>
                                     {
                                     indicatorMeta.info[currentLang] + (
                                     frozenDuration < 5

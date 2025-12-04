@@ -41,7 +41,6 @@ export type ContentsTextWithTranslation = Record<string, UiContentText>;
 export type AppMeta = {
     "app-version": string;
     "developer-email": string;
-    "cdn-root-url": string;
     "supporting-duration-years": number[];
     title: string;
     "max-index-cnt": number;
