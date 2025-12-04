@@ -59,7 +59,7 @@ function ShowGraph(
         // 이미 보여지는 중이면 새 탭에서 새 검색을 진행하게 만든다.
         // 탭이 곳 검색 기록 역할을 하게 된다.
         if (showGraphs) {
-            window.open("http://localhost:5173"); // TODO : 이런 URL은 나중에 .env로 빼야 한다.
+            window.open(import.meta.env.VITE_ORIGIN_URL);
             return;
         }
 
