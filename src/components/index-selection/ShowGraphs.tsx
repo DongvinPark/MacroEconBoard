@@ -164,13 +164,24 @@ function ShowGraph(
                     graphMeta.map(
                         (indicatorMeta) => (
                             <div key={indicatorMeta.key}>
-                                <h2 style={{ color: "green" }}>
+                                <p></p>
+                                <div
+                                    style={{ 
+                                        color: COLORS.brightGreen,
+                                        fontWeight: "bold",
+                                        fontSize: "18px"
+                                    }}
+                                >
                                     {indicatorMeta.name[currentLang] + (
                                         indicatorMeta["y-axis-unit"] === "" ?
                                         "" : ( "(" + indicatorMeta["y-axis-unit"] + ")" )
                                     )}
-                                </h2>
-                                <p>
+                                </div>
+                                <div
+                                    style={{ 
+                                        fontWeight: "bold"
+                                    }}
+                                >
                                     {
                                     indicatorMeta.info[currentLang] + (
                                     frozenDuration < 5
@@ -180,7 +191,7 @@ function ShowGraph(
                                         : ("("+appMeta["contents-text"][currentLang]["month-avg"]+")")
                                     )
                                     }
-                                </p>
+                                </div>
                                 <ChartWithEvent
                                     timeAndValueData={graphData.get(indicatorMeta.key)}
                                     eventData={events === undefined ? [] : events}

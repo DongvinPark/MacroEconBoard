@@ -10,6 +10,7 @@ export const COLORS = {
     axisColor: "#000",
 
     rolexGreenColor: "#00703C",
+    brightGreen: "green",
     eventAreaBackgroundColor: "#eee",
 
     spinerBorderColor: "#f3f3f3",
