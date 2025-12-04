@@ -16,7 +16,7 @@ async function downloadJsonFilesForGraph(
     { appMeta, currentLang, duration, sortedIndicators }: JsonFileDownloaderProps
 ) {
     const currentYear = new Date().getFullYear();
-    const cdnRoot = appMeta["cdn-root-url"];
+    const cdnRoot = import.meta.env.VITE_CDN_ROOT_URL;
     const resultMap: GraphData = new Map();
     // 동시성 제한 함수 (p-limit 방식을 따르도록 구현)
     const limiter = createLimiter(VALUES.jsonDownloaderThreadCnt); // 동시 실행 최대 10개 (실제 AWS Cloudfront 환경에서 안정적인 값)
