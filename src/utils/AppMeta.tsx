@@ -29,6 +29,7 @@ export type UiContentText = {
   "select-duration": string;
   country: Record<string, string>; // "kr": "한국", "us": "미국"
   "duration-year-word": string[];
+  "no-selection-warning": string;
   "week-avg": string,
   "month-avg": string,
   "show-graph": string;

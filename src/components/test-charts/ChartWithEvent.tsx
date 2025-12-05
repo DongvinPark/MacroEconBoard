@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
-import { createChart, type IChartApi, type LineData } from "lightweight-charts";
+import { createChart, type IChartApi, type LineData, type Time } from "lightweight-charts";
 import type { Event } from "../../components/downloader/EventJsonDownloader"
 import { COLORS } from "../../constants/Colors";
 import { VALUES } from "../../constants/Values";
 import updateTimeAndValueData from "./PlotDataUpdater";
+import { clearOverlay, drawOverlay } from "./EventTracingAreaRenderer";
 
 type GraphProps = {
   timeAndValueData: {time: string, value: number}[];
@@ -14,15 +15,16 @@ type GraphProps = {
 
 
 const ChartWithEvent: React.FC<GraphProps> = (
-  {timeAndValueData, eventData, graphName, durationYear}
+  {timeAndValueData, graphName, durationYear}
 ) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
 
   // 사용자가 그래프 내부를 드래그 할 때, 이벤트 추적 대상 구간 표시용.
   const overlayRef = useRef<HTMLDivElement>(null);
-  let dragging = false;
-  let dragStart = null;
+  const clickCntRef = useRef<number>(0);
+  let dragStart: Time|undefined = undefined;
+  let dragEnd: Time|undefined = undefined;
 
   // 사용자가 그래프 내부를 드래그 할 때, 이벤트 추적 대상 구간에 히당하는 이벤트 리스트 표시용.
   const [tooltip, setTooltip] = useState<any>(null);
@@ -74,8 +76,8 @@ const ChartWithEvent: React.FC<GraphProps> = (
         },
       },
       crosshair: { mode: 1 },
-      handleScroll: { vertTouchDrag: true },
-      handleScale: { pinch: true },
+      handleScroll: false,
+      handleScale: false,
     });
 
     chartRef.current = chart;
@@ -102,16 +104,17 @@ const ChartWithEvent: React.FC<GraphProps> = (
 
     // 마우스/터치 동작 감지
     chart.subscribeClick((param) => {
-      // 이벤트 추적 구간 표시용
-      if(!dragging){
-        dragging = true;
+      const state = clickCntRef.current;
+      if(state % 3 ===0){
         dragStart = param.time;
-        console.log("드래깅스타트 기록 !!! : " + param.time);
+      } else if(state % 3 === 1){
+        dragEnd = param.time;
       } else {
-        dragging = false;
-        dragStart = null;
+        dragStart = undefined;
+        dragEnd = undefined;
         clearOverlay(overlayRef);
       }
+      clickCntRef.current += 1;
     });
 
     // 🎯 마우스/터치 이동(드래그) 동작 감지
@@ -121,7 +124,7 @@ const ChartWithEvent: React.FC<GraphProps> = (
         return;
       }
 
-      drawOverlay(chart, overlayRef, dragStart, param.time);
+      drawOverlay(chart, overlayRef, dragStart, dragEnd, param.time);
 
       // 이벤트 리스트 표시용.
       const kospi = param.seriesData.get(lineDataSeries) as LineData;
@@ -188,33 +191,3 @@ const ChartWithEvent: React.FC<GraphProps> = (
 }
 
 export default ChartWithEvent;
-
-
-function clearOverlay(overlayRef: RefObject<HTMLDivElement | null>){
-  if(!overlayRef.current) return;
-  overlayRef.current.style.display = "none";
-}
-
-function drawOverlay(
-  chart: any,
-  overlayRef: any,
-  startTime: any,
-  endTime: any
-) {
-  if (!chart || !overlayRef.current) return;
-  if (startTime === null || startTime === undefined) return;
-
-  const timeScale = chart.timeScale();
-
-  const x1 = timeScale.timeToCoordinate(startTime);
-  const x2 = timeScale.timeToCoordinate(endTime);
-
-  if (x1 == null || x2 == null) return;
-
-  const left = Math.min(x1, x2);
-  const width = Math.abs(x2 - x1);
-
-  overlayRef.current.style.display = "block";
-  overlayRef.current.style.left = `${left}px`;
-  overlayRef.current.style.width = `${width}px`;
-}
