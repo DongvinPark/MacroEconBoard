@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { createChart, type IChartApi, type LineData } from "lightweight-charts";
 import type { Event } from "../../components/downloader/EventJsonDownloader"
 import { COLORS } from "../../constants/Colors";
@@ -18,6 +18,13 @@ const ChartWithEvent: React.FC<GraphProps> = (
 ) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
+
+  // 사용자가 그래프 내부를 드래그 할 때, 이벤트 추적 대상 구간 표시용.
+  const overlayRef = useRef<HTMLDivElement>(null);
+  let dragging = false;
+  let dragStart = null;
+
+  // 사용자가 그래프 내부를 드래그 할 때, 이벤트 추적 대상 구간에 히당하는 이벤트 리스트 표시용.
   const [tooltip, setTooltip] = useState<any>(null);
 
   useEffect(() => {
@@ -93,15 +100,31 @@ const ChartWithEvent: React.FC<GraphProps> = (
     chart.timeScale().fitContent();
     chart.timeScale().scrollToRealTime();
 
-    // 🎯 터치/마우스 이동 이벤트
+    // 마우스/터치 동작 감지
+    chart.subscribeClick((param) => {
+      // 이벤트 추적 구간 표시용
+      if(!dragging){
+        dragging = true;
+        dragStart = param.time;
+        console.log("드래깅스타트 기록 !!! : " + param.time);
+      } else {
+        dragging = false;
+        dragStart = null;
+        clearOverlay(overlayRef);
+      }
+    });
+
+    // 🎯 마우스/터치 이동(드래그) 동작 감지
     chart.subscribeCrosshairMove((param) => {
       if (!param || !param.time || !param.point) {
         setTooltip(null);
         return;
       }
 
-      const kospi = param.seriesData.get(lineDataSeries) as LineData;
+      drawOverlay(chart, overlayRef, dragStart, param.time);
 
+      // 이벤트 리스트 표시용.
+      const kospi = param.seriesData.get(lineDataSeries) as LineData;
       setTooltip({
         time: param.time,
         kospi: kospi?.value,
@@ -125,8 +148,26 @@ const ChartWithEvent: React.FC<GraphProps> = (
     <div style={{ position: "relative" }}>
       <div
         ref={chartContainerRef}
-        style={{ width: "100%", height: VALUES.chartHeight, backgroundColor: COLORS.eventAreaBackgroundColor }} 
-      />
+        style={{ 
+          width: "100%",
+          height: VALUES.chartHeight,
+          backgroundColor: COLORS.eventAreaBackgroundColor,
+          position: "relative"
+        }} 
+      >
+        <div
+          ref={overlayRef}
+          style={{
+            position: "absolute",
+            top: 0,
+            bottom: 0,
+            backgroundColor: "rgba(180,180,180,0.25)",
+            pointerEvents: "none",
+            display: "none",
+            zIndex: 10,
+          }}
+        />
+      </div>
       {tooltip && (
         <div
           className="absolute bg-white/90 border border-gray-200 shadow rounded-lg text-xs p-2"
@@ -145,3 +186,33 @@ const ChartWithEvent: React.FC<GraphProps> = (
 }
 
 export default ChartWithEvent;
+
+
+function clearOverlay(overlayRef: RefObject<HTMLDivElement | null>){
+  if(!overlayRef.current) return;
+  overlayRef.current.style.display = "none";
+}
+
+function drawOverlay(
+  chart: any,
+  overlayRef: any,
+  startTime: any,
+  endTime: any
+) {
+  if (!chart || !overlayRef.current) return;
+  if (startTime === null || startTime === undefined) return;
+
+  const timeScale = chart.timeScale();
+
+  const x1 = timeScale.timeToCoordinate(startTime);
+  const x2 = timeScale.timeToCoordinate(endTime);
+
+  if (x1 == null || x2 == null) return;
+
+  const left = Math.min(x1, x2);
+  const width = Math.abs(x2 - x1);
+
+  overlayRef.current.style.display = "block";
+  overlayRef.current.style.left = `${left}px`;
+  overlayRef.current.style.width = `${width}px`;
+}
