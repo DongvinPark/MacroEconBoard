@@ -155,6 +155,8 @@ const ChartWithEvent: React.FC<GraphProps> = (
           position: "relative"
         }} 
       >
+        {/* overayRef 가 chartContainerRef 안에 있으면서
+        zIndex가 chartContainerRef 보다 커야 그래프 안에 회색 박스 영역이 보인다. */}
         <div
           ref={overlayRef}
           style={{
