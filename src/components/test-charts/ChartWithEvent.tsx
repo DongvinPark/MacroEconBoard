@@ -168,6 +168,8 @@ const ChartWithEvent: React.FC<GraphProps> = (
       color: COLORS.rolexGreenColor,
       lineWidth: 2,
       title: "",
+      lastValueVisible: false,
+      priceLineVisible: false,
     });
 
     // durationYear 값에 맞춰서 원본 데이터의 개수를 줄인다(주 평균 또는 월 평균 적용).
