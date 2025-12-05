@@ -1,7 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { AppMeta, IndexItem } from "../../utils/AppMeta";
-import CandleChart from "../../components/test-charts/CandleChart";
-import LineChart from "../../components/test-charts/LineChart";
 import ChartWithEvent from "../../components/test-charts/ChartWithEvent";
 import downloadJsonFilesForGraph from "../../components/downloader/JsonFileDownloader";
 import type { Event } from "../../components/downloader/EventJsonDownloader";
