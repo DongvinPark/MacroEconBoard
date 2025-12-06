@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { createChart, type IChartApi, type LineData, type Time } from "lightweight-charts";
-import type { Event } from "../../components/downloader/EventJsonDownloader"
+import type { Event } from "../downloader/EventJsonDownloader"
 import { COLORS } from "../../constants/Colors";
 import { VALUES } from "../../constants/Values";
 import updateTimeAndValueData from "./PlotDataUpdater";
@@ -149,7 +149,7 @@ const ChartWithEvent: React.FC<GraphProps> = (
 
   return (
     <div style={{ position: "relative" }}>
-      <div
+      <div   
         ref={chartContainerRef}
         style={{ 
           width: "100%",
