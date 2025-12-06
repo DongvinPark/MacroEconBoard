@@ -28,6 +28,9 @@ export function drawOverlay(
   let x2 = timeScale.timeToCoordinate(curTime);
   if(endTime !== null && endTime !== undefined){
     x2 = timeScale.timeToCoordinate(endTime);
+    // for test logging
+    // console.log("스타트 타임 : " + startTime);
+    // console.log("엔 드 타임 : " + endTime);
   }
 
   if (x1 == null || x2 == null) return;
