@@ -2,8 +2,8 @@ import { useState } from "react";
 import type { AppMeta, IndexItem } from "../../utils/AppMeta";
 import ChartWithEvent from "../render-graphs/ChartWithEvent";
 import downloadJsonFilesForGraph from "../../components/downloader/JsonFileDownloader";
-import type { Event } from "../../components/downloader/EventJsonDownloader";
-import { loadEventsData } from "../../components/downloader/EventJsonDownloader";
+import type { RawEvent, MyEvent } from "../../components/downloader/EventJsonDownloader";
+import { loadMyEventsAscByEndDate, loadMyEventsAscByStartDate, loadMyEventsList, loadRawEventsData } from "../../components/downloader/EventJsonDownloader";
 import { getIndexMetaList } from "../downloader/FilterIndexMeta";
 import { COLORS } from "../../constants/Colors";
 
@@ -31,7 +31,8 @@ function ShowGraph(
     const [graphData, setGraphData] = useState(new Map()); // 실제 그래프 표시용 데이터
                         // useState<...>(...); 여기에서 <> 안의 ... 부분에 타입을 꼭 정의해줘야 한다.
     const [graphMeta, setGraphMeta] = useState<IndexItem[]>([]); // 그래프 표시용 메타데이터
-    const [events, setEvents] = useState<Event[]>(); // 이벤트 정보
+    const [eventsByStart, setEventsByStart] = useState<MyEvent[]>(); // 시작 날짜 기준 ASC
+    const [eventsByEnd, setEventsByEnd] = useState<MyEvent[]>(); // 종료 날짜 기준 ASC
     // 그래프 메타데이터 최초 렌더링 후, 해당 표시 내용 고정 용
     const [frozenDuration, setFrozenDuration] = useState<number>(0);
 
@@ -85,9 +86,13 @@ function ShowGraph(
         const graphMeta: IndexItem[] = getIndexMetaList(appMeta, sortedIndicators);
         setGraphMeta(graphMeta);
 
-        // 이벤트 정보 다운로드
-        const loadedEvents: Event[] = await loadEventsData();
-        setEvents(loadedEvents);
+        // 이벤트 정보 다운로드 후 정렬된 이벤트 생성
+        const loadedEvents: RawEvent[] = await loadRawEventsData();
+        const myEvents: MyEvent[] = loadMyEventsList(loadedEvents);
+        const eventsByStartDate = loadMyEventsAscByStartDate(myEvents);
+        setEventsByStart(eventsByStartDate);
+        const eventsByEndDate = loadMyEventsAscByEndDate(myEvents);
+        setEventsByEnd(eventsByEndDate);
 
         // 로딩 완료 후 그래프 표시
         setLoading(false);
@@ -194,7 +199,8 @@ function ShowGraph(
                                 </div>
                                 <ChartWithEvent
                                     timeAndValueData={graphData.get(indicatorMeta.key)}
-                                    eventData={events === undefined ? [] : events}
+                                    eventDataByStart={eventsByStart === undefined ? [] : eventsByStart}
+                                    eventDataByEnd={eventsByEnd === undefined ? [] : eventsByEnd}
                                     graphName={graphMeta[0].key}
                                     durationYear={frozenDuration}
                                 />

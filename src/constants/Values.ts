@@ -7,4 +7,6 @@ export const VALUES = {
     durationYearForWeekAvg: 5,
     chartHeight: 300,
 
+    endDateForOnGoingEvent: new Date("2100-12-31"),
+
 } as const;

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createChart, type IChartApi, type LineData, type Time } from "lightweight-charts";
-import type { Event } from "../downloader/EventJsonDownloader"
+import type { Event, MyEvent } from "../downloader/EventJsonDownloader"
 import { COLORS } from "../../constants/Colors";
 import { VALUES } from "../../constants/Values";
 import updateTimeAndValueData from "./PlotDataUpdater";
@@ -8,13 +8,14 @@ import { clearOverlay, drawOverlay } from "./EventTracingAreaRenderer";
 
 type GraphProps = {
   timeAndValueData: { time: string, value: number }[];
-  eventData: Event[];
+  eventDataByStart: MyEvent[];
+  eventDataByEnd: MyEvent[];
   graphName: string;
   durationYear: number;
 };
 
 const ChartWithEvent: React.FC<GraphProps> = (
-  {timeAndValueData, graphName, durationYear}
+  {timeAndValueData, eventDataByStart, eventDataByEnd, graphName, durationYear}
 ) => {
 
   const chartContainerRef = useRef<HTMLDivElement>(null);
