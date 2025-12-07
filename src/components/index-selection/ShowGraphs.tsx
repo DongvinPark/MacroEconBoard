@@ -31,6 +31,8 @@ function ShowGraph(
     const [graphData, setGraphData] = useState(new Map()); // 실제 그래프 표시용 데이터
                         // useState<...>(...); 여기에서 <> 안의 ... 부분에 타입을 꼭 정의해줘야 한다.
     const [graphMeta, setGraphMeta] = useState<IndexItem[]>([]); // 그래프 표시용 메타데이터
+
+    const [myEvents, setMyEvents] = useState<MyEvent[]>(); // 전체 이벤트 리스트
     const [eventsByStart, setEventsByStart] = useState<MyEvent[]>(); // 시작 날짜 기준 ASC
     const [eventsByEnd, setEventsByEnd] = useState<MyEvent[]>(); // 종료 날짜 기준 ASC
     // 그래프 메타데이터 최초 렌더링 후, 해당 표시 내용 고정 용
@@ -89,6 +91,7 @@ function ShowGraph(
         // 이벤트 정보 다운로드 후 정렬된 이벤트 생성
         const loadedEvents: RawEvent[] = await loadRawEventsData();
         const myEvents: MyEvent[] = loadMyEventsList(loadedEvents);
+        setMyEvents(myEvents);
         const eventsByStartDate = loadMyEventsAscByStartDate(myEvents);
         setEventsByStart(eventsByStartDate);
         const eventsByEndDate = loadMyEventsAscByEndDate(myEvents);
@@ -199,6 +202,7 @@ function ShowGraph(
                                 </div>
                                 <ChartWithEvent
                                     timeAndValueData={graphData.get(indicatorMeta.key)}
+                                    totalEvents={myEvents === undefined ? [] : myEvents}
                                     eventDataByStart={eventsByStart === undefined ? [] : eventsByStart}
                                     eventDataByEnd={eventsByEnd === undefined ? [] : eventsByEnd}
                                     graphName={graphMeta[0].key}

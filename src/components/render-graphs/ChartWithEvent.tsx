@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { createChart, type IChartApi, type LineData, type Time } from "lightweight-charts";
-import type { Event, MyEvent } from "../downloader/EventJsonDownloader"
+import type { MyEvent } from "../downloader/EventJsonDownloader"
 import { COLORS } from "../../constants/Colors";
 import { VALUES } from "../../constants/Values";
 import updateTimeAndValueData from "./PlotDataUpdater";
 import { clearOverlay, drawOverlay } from "./EventTracingAreaRenderer";
+import { findEventsInRangeByStartAsc } from "./EventFinder";
 
 type GraphProps = {
   timeAndValueData: { time: string, value: number }[];
+  totalEvents: MyEvent[];
   eventDataByStart: MyEvent[];
   eventDataByEnd: MyEvent[];
   graphName: string;
@@ -15,7 +17,7 @@ type GraphProps = {
 };
 
 const ChartWithEvent: React.FC<GraphProps> = (
-  {timeAndValueData, eventDataByStart, eventDataByEnd, graphName, durationYear}
+  {timeAndValueData, totalEvents, eventDataByStart, eventDataByEnd, graphName, durationYear}
 ) => {
 
   const chartContainerRef = useRef<HTMLDivElement>(null);
@@ -33,6 +35,7 @@ const ChartWithEvent: React.FC<GraphProps> = (
 
   // 사용자가 그래프 내부를 드래그 할 때, 이벤트 추적 대상 구간에 히당하는 이벤트 리스트 표시용.
   const [tooltip, setTooltip] = useState<any>(null);
+  const targetEvents = useRef<MyEvent[]>([]);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -154,6 +157,13 @@ const ChartWithEvent: React.FC<GraphProps> = (
 
       // 드래그 영역 확정
       drawOverlay(chart, overlayRef, dragStart.current, dragEnd.current, t);
+
+      // 드래그 영역 구간에 걸치는 이벤트들 탐색(O(N log N) 이진탐색 사용)
+      const targetEvents = findEventsInRangeByStartAsc(
+        new Date(dragStart.current), new Date(dragEnd.current), eventDataByStart, eventDataByEnd, totalEvents
+      );
+      console.log("타깃 이벤트들 !!!")
+      console.log(targetEvents);
     };
 
     container.addEventListener("pointerdown", handlePointerDown);
