@@ -6,6 +6,7 @@ import { VALUES } from "../../constants/Values";
 import updateTimeAndValueData from "./PlotDataUpdater";
 import { clearOverlay, drawOverlay } from "./EventTracingAreaRenderer";
 import { findEventsInRangeByStartAsc } from "./EventFinder";
+import { formatDateYYYY_MM_DD } from "../../utils/DateFormater";
 
 type GraphProps = {
   timeAndValueData: { time: string, value: number }[];
@@ -27,15 +28,18 @@ const ChartWithEvent: React.FC<GraphProps> = (
   const overlayRef = useRef<HTMLDivElement>(null);
   // 드래그 상태 저장
   const isDragging = useRef(false);
-  const dragStart = useRef<Time | null>(null);
-  const dragEnd = useRef<Time | null>(null);
+  const dragStartTime = useRef<Time | null>(null);
+  const dragEndTime = useRef<Time | null>(null);
 
-  const pointerDownTime = useRef(0);
+  const pointerDownTs = useRef(0);
   const pointerDownX = useRef(0);
 
   // 사용자가 그래프 내부를 드래그 할 때, 이벤트 추적 대상 구간에 히당하는 이벤트 리스트 표시용.
   const [tooltip, setTooltip] = useState<any>(null);
   const targetEvents = useRef<MyEvent[]>([]);
+
+  // ========= param.time을 저장하기 위한 변수 =========
+  const latestParamTime = useRef<Time | null>(null);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -50,8 +54,8 @@ const ChartWithEvent: React.FC<GraphProps> = (
       },
       grid: {
                   // 차트 내부에 점선을 긋고 싶을 때 주석 해제.
-        vertLines: { visible: /*true, color: "#e6e6e6"*/false },
-        horzLines: { visible: /*true, color: "#e6e6e6"*/false },
+        vertLines: { visible: true, color: COLORS.innerVerticalLineColor },
+        horzLines: { visible: false /*, color: COLORS.innerVerticalLineColor */ },
       },
       rightPriceScale: { visible: true, borderColor: COLORS.axisColor },
       timeScale: {
@@ -103,90 +107,92 @@ const ChartWithEvent: React.FC<GraphProps> = (
 
     // ========= Pointer Event 기반 새로운 드래그 로직 =========
     // 터치 또는 클릭 시작 -> 드래그 -> 터치 또는 클릭 해제 직후 이벤트 추적 영역 확정
-    const container = chartContainerRef.current;
+    // ========= crosshairMove → param.time 확보 =========
+    chart.subscribeCrosshairMove((param) => {
+      if (!param || !param.time || !isDragging.current) return;
 
-    const getTimeFromX = (x: number): Time | null => {
-      if (!chartRef.current) return null;
-      const logical = chartRef.current.timeScale().coordinateToTime(x);
-      return logical ?? null;
-    };
+      if (!dragStartTime.current) {
+        // 최초 드래그 시작점 세팅
+        dragStartTime.current = param.time;
+        dragEndTime.current = param.time;
+
+        drawOverlay(chart, overlayRef,
+          dragStartTime.current,
+          dragEndTime.current,
+          dragStartTime.current
+        );
+        return;
+      }
+
+      // 이후 드래그 구간 계속 업데이트
+      dragEndTime.current = param.time;
+      drawOverlay(chart, overlayRef,
+        dragStartTime.current,
+        dragEndTime.current,
+        param.time
+      );
+    });;
 
     // 처음 터치/클릭 할 때의 이벤트 처리
     const handlePointerDown = (e: PointerEvent) => {
-      pointerDownTime.current = Date.now();
-      pointerDownX.current = e.clientX;
-
+      // 모든 상태 초기화
+      clearOverlay(overlayRef);
+      setTooltip({});
       isDragging.current = true;
 
-      const t = getTimeFromX(e.clientX);
-      dragStart.current = t;
-      dragEnd.current = t;
+      // 아직 param.time 없음 → startTime은 crosshairMove 첫 1회에서 세팅
+      dragStartTime.current = null;
+      dragEndTime.current = null;
 
-      drawOverlay(chart, overlayRef, dragStart.current, dragEnd.current, t);
+      pointerDownTs.current = Date.now();
+      pointerDownX.current = e.clientX;
     };
 
-    // 터치/클릭 유지하면서 드래그 할 때의 이벤트 처리
-    const handlePointerMove = (e: PointerEvent) => {
-      if (!isDragging.current) return;
-
-      const t = getTimeFromX(e.clientX);
-      dragEnd.current = t;
-
-      drawOverlay(chart, overlayRef, dragStart.current, dragEnd.current, t);
-    };
-
-    // 드래그를 마치고 터치/클릭 해제할 때의 이벤트 처리
     const handlePointerUp = (e: PointerEvent) => {
-      if (!isDragging.current) return;
-
       isDragging.current = false;
 
-      const t = getTimeFromX(e.clientX);
-      dragEnd.current = t;
-
-      const elapsed = Date.now() - pointerDownTime.current;
+      const elapsed = Date.now() - pointerDownTs.current;
       const moved = Math.abs(e.clientX - pointerDownX.current);
 
       // 단순 클릭이면 overlay 제거
-      if (elapsed < 120 && moved < 5) {
+      if (elapsed < 150 && moved < 5) {
         clearOverlay(overlayRef);
-        dragStart.current = null;
-        dragEnd.current = null;
+        setTooltip({});
+        dragStartTime.current = null;
+        dragEndTime.current = null;
+        isDragging.current = false;
         return;
       }
 
-      // 드래그 영역 확정
-      drawOverlay(chart, overlayRef, dragStart.current, dragEnd.current, t);
+      // 드래그 구간 확정
+      if (!dragStartTime.current || !dragEndTime.current) return;
 
-      // 드래그 영역 구간에 걸치는 이벤트들 탐색(O(N log N) 이진탐색 사용)
+      const start = new Date(dragStartTime.current as any);
+      const end = new Date(dragEndTime.current as any);
+
       const targetEvents = findEventsInRangeByStartAsc(
-        new Date(dragStart.current), new Date(dragEnd.current), eventDataByStart, eventDataByEnd, totalEvents
+        start,
+        end,
+        eventDataByStart,
+        eventDataByEnd,
+        totalEvents
       );
-      console.log("타깃 이벤트들 !!!")
-      console.log(targetEvents);
+
+      setTooltip({
+        time: `${formatDateYYYY_MM_DD(start)} ~ ${formatDateYYYY_MM_DD(end)}`,
+        targetEventList: targetEvents
+      });
+
+      console.log("확정된 이벤트들:", targetEvents);
     };
 
+    const container = chartContainerRef.current;
     container.addEventListener("pointerdown", handlePointerDown);
-    container.addEventListener("pointermove", handlePointerMove);
     container.addEventListener("pointerup", handlePointerUp);
     container.addEventListener("pointerleave", handlePointerUp);
+    container.addEventListener("pointercancel", handlePointerUp);
 
-    // 기존 crosshairMove → tooltip 표시
-    chart.subscribeCrosshairMove((param) => {
-      if (!param || !param.time || !param.point) {
-        setTooltip(null);
-        return;
-      }
-      const data = param.seriesData.get(line) as LineData;
-      // TODO : 여기에 이벤트 구간 시작 ~ 끝 날짜, 이벤트들 내용 리스트를 넣어야 한다.
-      setTooltip({
-        time: param.time,
-        kospi: data?.value,
-        x: param.point.x,
-        y: param.point.y,
-      });
-    });
-
+    // ========= 리사이즈 =========
     const resizeObserver = new ResizeObserver(() => {
       chart.applyOptions({ width: chartContainerRef.current!.clientWidth });
     });
@@ -196,11 +202,10 @@ const ChartWithEvent: React.FC<GraphProps> = (
     return () => {
       resizeObserver.disconnect();
       chart.remove();
-
       container.removeEventListener("pointerdown", handlePointerDown);
-      container.removeEventListener("pointermove", handlePointerMove);
       container.removeEventListener("pointerup", handlePointerUp);
       container.removeEventListener("pointerleave", handlePointerUp);
+      container.removeEventListener("pointercancel", handlePointerUp);
     };
   }, [timeAndValueData]);
 

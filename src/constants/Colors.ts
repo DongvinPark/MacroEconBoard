@@ -16,4 +16,6 @@ export const COLORS = {
     spinerBorderColor: "#f3f3f3",
     spinerCircleColor: "#007bff",
 
+    innerVerticalLineColor: "#e6e6e6",
+
 } as const;
