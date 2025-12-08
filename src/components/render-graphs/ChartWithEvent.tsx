@@ -87,6 +87,7 @@ const ChartWithEvent: React.FC<GraphProps> = (
       crosshair: { mode: 1 },
       handleScroll: false,
       handleScale: false,
+      autoSize: false,
     });
 
     chartRef.current = chart;
@@ -178,8 +179,18 @@ const ChartWithEvent: React.FC<GraphProps> = (
         totalEvents
       );
 
+      let tooltipStartDate = null;
+      let tooltipEndDate = null;
+      if(start.getTime() < end.getTime()){
+        tooltipStartDate = start;
+        tooltipEndDate = end;
+      } else {
+        tooltipStartDate = end;
+        tooltipEndDate = start;
+      }
+
       setTooltip({
-        time: `${formatDateYYYY_MM_DD(start)} ~ ${formatDateYYYY_MM_DD(end)}`,
+        time: `${formatDateYYYY_MM_DD(tooltipStartDate)} ~ ${formatDateYYYY_MM_DD(tooltipEndDate)}`,
         targetEventList: targetEvents
       });
 
@@ -194,7 +205,8 @@ const ChartWithEvent: React.FC<GraphProps> = (
 
     // ========= 리사이즈 =========
     const resizeObserver = new ResizeObserver(() => {
-      chart.applyOptions({ width: chartContainerRef.current!.clientWidth });
+      // 화면 돌려도 그래프와 이벤트 추적 area 를 재렌더링 하지 않게 막는다.
+      //chart.applyOptions({ width: chartContainerRef.current!.clientWidth });
     });
 
     resizeObserver.observe(chartContainerRef.current);
