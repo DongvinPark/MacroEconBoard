@@ -7,7 +7,7 @@ import updateTimeAndValueData from "./PlotDataUpdater";
 import { clearOverlay, drawOverlay } from "./EventTracingAreaRenderer";
 import { findEventsInRangeByStartDateAndEndDate, findEventsInRangeByStartDate } from "./EventFinder";
 import { formatDateYYYY_MM_DD } from "../../utils/DateFormater";
-import { getEventMarkerList } from "./EventMarkerMaker";
+import { getEventMarkerList, type EventMarker } from "./EventMarkerMaker";
 
 type GraphProps = {
   timeAndValueData: { time: string, value: number }[];
@@ -108,7 +108,7 @@ const ChartWithEvent: React.FC<GraphProps> = ({
     line.setData(reducedData);
 
     // 이벤트들의 시작 날짜를 기준으로 그래프에 라벨을 표시한다.
-    const enventMarkers = getEventMarkerList(
+    const enventMarkers: EventMarker[]|any = getEventMarkerList(
       reducedData[0].time,
       reducedData[reducedData.length-1].time,
       eventDataByStart
@@ -297,7 +297,7 @@ const ChartWithEvent: React.FC<GraphProps> = ({
           <div className="font-semibold">{"🗓️ " + tooltip.time}</div>
           <div className="text-red-600">
             {
-              tooltip.targetEventList.map((event, idx)=>{
+              tooltip.targetEventList.map((event: MyEvent, idx: number)=>{
                 return (
                   <div key={idx}>
                     {
