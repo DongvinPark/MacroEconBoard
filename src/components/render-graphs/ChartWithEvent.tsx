@@ -199,13 +199,23 @@ const ChartWithEvent: React.FC<GraphProps> = ({
         endParam = start;
       }
 
-      const targetEvents = findEventsInRangeByStartDateAndEndDate(
+      // const targetEvents = findEventsInRangeByStartDateAndEndDate(
+      //   startParam,
+      //   endParam,
+      //   eventDataByStart,
+      //   eventDataByEnd,
+      //   totalEvents
+      // );
+
+      // 구간 렌더링은 사용하지 않고, 이벤트 시작날짜 기준으로만 탐색한다.
+      console.log(startParam);
+      const targetEvents = findEventsInRangeByStartDate(
         startParam,
         endParam,
-        eventDataByStart,
-        eventDataByEnd,
-        totalEvents
+        eventDataByStart
       );
+
+      console.log(targetEvents);
 
       let tooltipStartDate = null;
       let tooltipEndDate = null;
@@ -291,7 +301,7 @@ const ChartWithEvent: React.FC<GraphProps> = ({
                 return (
                   <div key={idx}>
                     {
-                      ("❕ ") +
+                      ("❗ ") +
                       (language === "ko" ? event.titleKr : event.titleEn)
                        + " : " + formatDateYYYY_MM_DD(event.start)
                     }

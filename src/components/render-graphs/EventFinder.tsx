@@ -98,9 +98,9 @@ export function findEventsInRangeByStartDate(
         const eventElem = inputListStartAsc[i];
         if(
             eventElem.start.getTime() >= startDate.getTime() &&
-            eventElem.end.getTime() <= endDate.getTime()
+            eventElem.start.getTime() <= endDate.getTime()
         ){
-            resultList.push();
+            resultList.push(eventElem);
         }
     }
 
