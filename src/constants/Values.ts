@@ -9,4 +9,7 @@ export const VALUES = {
 
     endDateForOnGoingEvent: new Date("2100-12-31"),
 
+    elapsedTimeThresholdMs: 150,
+    moveThreshold: 5,
+
 } as const;

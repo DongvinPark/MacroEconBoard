@@ -207,6 +207,7 @@ function ShowGraph(
                                     eventDataByEnd={eventsByEnd === undefined ? [] : eventsByEnd}
                                     graphName={graphMeta[0].key}
                                     durationYear={frozenDuration}
+                                    language={currentLang}
                                 />
                             </div>
                         )

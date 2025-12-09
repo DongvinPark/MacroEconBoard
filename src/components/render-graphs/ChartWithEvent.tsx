@@ -15,11 +15,17 @@ type GraphProps = {
   eventDataByEnd: MyEvent[];
   graphName: string;
   durationYear: number;
+  language: string;
 };
 
-const ChartWithEvent: React.FC<GraphProps> = (
-  {timeAndValueData, totalEvents, eventDataByStart, eventDataByEnd, graphName, durationYear}
-) => {
+const ChartWithEvent: React.FC<GraphProps> = ({
+  timeAndValueData,
+  totalEvents,
+  eventDataByStart,
+  eventDataByEnd,
+  graphName,
+  durationYear,
+  language}) => {
 
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
@@ -37,9 +43,6 @@ const ChartWithEvent: React.FC<GraphProps> = (
   // 사용자가 그래프 내부를 드래그 할 때, 이벤트 추적 대상 구간에 히당하는 이벤트 리스트 표시용.
   const [tooltip, setTooltip] = useState<any>(null);
   const targetEvents = useRef<MyEvent[]>([]);
-
-  // ========= param.time을 저장하기 위한 변수 =========
-  const latestParamTime = useRef<Time | null>(null);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -138,7 +141,10 @@ const ChartWithEvent: React.FC<GraphProps> = (
     const handlePointerDown = (e: PointerEvent) => {
       // 모든 상태 초기화
       clearOverlay(overlayRef);
-      setTooltip({});
+      setTooltip({
+        time: "",
+        targetEventList: []
+      });
       isDragging.current = true;
 
       // 아직 param.time 없음 → startTime은 crosshairMove 첫 1회에서 세팅
@@ -156,9 +162,12 @@ const ChartWithEvent: React.FC<GraphProps> = (
       const moved = Math.abs(e.clientX - pointerDownX.current);
 
       // 단순 클릭이면 overlay 제거
-      if (elapsed < 150 && moved < 5) {
+      if (elapsed < VALUES.elapsedTimeThresholdMs && moved < VALUES.moveThreshold) {
         clearOverlay(overlayRef);
-        setTooltip({});
+        setTooltip({
+          time: "",
+          targetEventList: []
+        });
         dragStartTime.current = null;
         dragEndTime.current = null;
         isDragging.current = false;
@@ -258,9 +267,21 @@ const ChartWithEvent: React.FC<GraphProps> = (
             pointerEvents: "none",
           }}
         >
-          <div className="font-semibold">{tooltip.time}</div>
+          <div className="font-semibold">{"🗓️ " + tooltip.time}</div>
           <div className="text-red-600">
-            {graphName + ": " + tooltip.kospi}
+            {
+              tooltip.targetEventList.map((event, idx)=>{
+                return (
+                  <div key={idx}>
+                    {
+                      ("❕ ") +
+                      (language === "ko" ? event.titleKr : event.titleEn)
+                       + " : " + formatDateYYYY_MM_DD(event.start)
+                    }
+                  </div>
+                );
+              })
+            }
           </div>
         </div>
       )}
