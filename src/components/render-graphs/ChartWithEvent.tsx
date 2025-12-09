@@ -208,14 +208,11 @@ const ChartWithEvent: React.FC<GraphProps> = ({
       // );
 
       // 구간 렌더링은 사용하지 않고, 이벤트 시작날짜 기준으로만 탐색한다.
-      console.log(startParam);
       const targetEvents = findEventsInRangeByStartDate(
         startParam,
         endParam,
         eventDataByStart
       );
-
-      console.log(targetEvents);
 
       let tooltipStartDate = null;
       let tooltipEndDate = null;
