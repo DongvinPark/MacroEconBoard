@@ -19,7 +19,7 @@ async function downloadJsonFilesForGraph(
     const cdnRoot = import.meta.env.VITE_CDN_ROOT_URL;
     const resultMap: GraphData = new Map();
     // 동시성 제한 함수 (p-limit 방식을 따르도록 구현)
-    const limiter = createLimiter(VALUES.jsonDownloaderThreadCnt); // 동시 실행 최대 10개 (실제 AWS Cloudfront 환경에서 안정적인 값)
+    const limiter = createLimiter(VALUES.jsonDownloaderThreadCnt); // 최대 동시 실행 태스크 개수 제한
 
     // 각 indexName 별로 전체 요청을 모아서 병렬 실행
     for (const [indexName, [categoryName]] of Object.entries(sortedIndicators)) {

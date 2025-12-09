@@ -2,7 +2,7 @@
 export const VALUES = {
 
     defaultLang: "ko",
-    jsonDownloaderThreadCnt: 10,
+    jsonDownloaderThreadCnt: 10, //(실제 AWS Cloudfront 환경에서 안정적인 값)
     floatFix: 3,
     durationYearForWeekAvg: 5,
     chartHeight: 300,
