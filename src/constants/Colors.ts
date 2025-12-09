@@ -18,4 +18,7 @@ export const COLORS = {
 
     innerVerticalLineColor: "#e6e6e6",
 
+    eventTracingAreaBoxColor: "rgba(180,180,180,0.25)",
+    eventMarkerColor: "#ff0000",
+
 } as const;

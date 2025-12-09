@@ -20,7 +20,7 @@ import type { MyEvent } from "../downloader/EventJsonDownloader";
  * 에서 각각의 조건을 만족하는 후보 집합을 얻은 뒤,
  * 두 집합의 교집합을 최종 결과로 반환한다.
  */
-export function findEventsInRangeByStartAsc(
+export function findEventsInRangeByStartDateAndEndDate(
     startDate: Date,
     endDate: Date,
     inputListStartAsc: MyEvent[],
@@ -84,4 +84,25 @@ function upperBound<T>(arr: T[], target: number, get: (t: T) => number): number{
         }
     }
     return start;
+}
+
+
+export function findEventsInRangeByStartDate(
+    startDate: Date,
+    endDate: Date,
+    inputListStartAsc: MyEvent[]
+): MyEvent[]{
+    let resultList: MyEvent[] = [];
+
+    for(let i=0; i<inputListStartAsc.length; i++){
+        const eventElem = inputListStartAsc[i];
+        if(
+            eventElem.start.getTime() >= startDate.getTime() &&
+            eventElem.end.getTime() <= endDate.getTime()
+        ){
+            resultList.push();
+        }
+    }
+
+    return resultList;
 }

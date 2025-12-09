@@ -5,8 +5,9 @@ import { COLORS } from "../../constants/Colors";
 import { VALUES } from "../../constants/Values";
 import updateTimeAndValueData from "./PlotDataUpdater";
 import { clearOverlay, drawOverlay } from "./EventTracingAreaRenderer";
-import { findEventsInRangeByStartAsc } from "./EventFinder";
+import { findEventsInRangeByStartDateAndEndDate, findEventsInRangeByStartDate } from "./EventFinder";
 import { formatDateYYYY_MM_DD } from "../../utils/DateFormater";
+import { getEventMarkerList } from "./EventMarkerMaker";
 
 type GraphProps = {
   timeAndValueData: { time: string, value: number }[];
@@ -106,6 +107,14 @@ const ChartWithEvent: React.FC<GraphProps> = ({
     const reducedData = updateTimeAndValueData(timeAndValueData, durationYear);
     line.setData(reducedData);
 
+    // 이벤트들의 시작 날짜를 기준으로 그래프에 라벨을 표시한다.
+    const enventMarkers = getEventMarkerList(
+      reducedData[0].time,
+      reducedData[reducedData.length-1].time,
+      eventDataByStart
+    );
+    line.setMarkers(enventMarkers);
+
     chart.timeScale().fitContent();
     chart.timeScale().scrollToRealTime();
 
@@ -180,9 +189,19 @@ const ChartWithEvent: React.FC<GraphProps> = ({
       const start = new Date(dragStartTime.current as any);
       const end = new Date(dragEndTime.current as any);
 
-      const targetEvents = findEventsInRangeByStartAsc(
-        start,
-        end,
+      let startParam = null;
+      let endParam = null;
+      if(start.getTime() <= end.getTime()){
+        startParam = start;
+        endParam = end;
+      } else {
+        startParam = end;
+        endParam = start;
+      }
+
+      const targetEvents = findEventsInRangeByStartDateAndEndDate(
+        startParam,
+        endParam,
         eventDataByStart,
         eventDataByEnd,
         totalEvents
@@ -202,8 +221,6 @@ const ChartWithEvent: React.FC<GraphProps> = ({
         time: `${formatDateYYYY_MM_DD(tooltipStartDate)} ~ ${formatDateYYYY_MM_DD(tooltipEndDate)}`,
         targetEventList: targetEvents
       });
-
-      console.log("확정된 이벤트들:", targetEvents);
     };
 
     const container = chartContainerRef.current;
@@ -250,7 +267,7 @@ const ChartWithEvent: React.FC<GraphProps> = ({
             position: "absolute",
             top: 0,
             bottom: 0,
-            backgroundColor: "rgba(180,180,180,0.25)",
+            backgroundColor: COLORS.eventTracingAreaBoxColor,
             pointerEvents: "none",
             display: "none",
             zIndex: 10,
