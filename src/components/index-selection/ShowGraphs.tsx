@@ -63,6 +63,12 @@ function ShowGraph(
             return;
         }
 
+        // 너무 많은 지표들을 선택했을 때는 렌더링 하지 않는다.
+        if (Object.entries(sortedIndicators).length > appMeta["max-index-cnt"]) {
+            alert(appMeta["contents-text"][currentLang]["selection-limit-exceed"]);
+            return;
+        }
+
         // 이미 보여지는 중이면 새 탭에서 새 검색을 진행하게 만든다.
         // 탭이 곳 검색 기록 역할을 하게 된다.
         if (showGraphs) {

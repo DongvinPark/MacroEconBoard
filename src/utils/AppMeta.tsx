@@ -30,6 +30,7 @@ export type UiContentText = {
   country: Record<string, string>; // "kr": "한국", "us": "미국"
   "duration-year-word": string[];
   "no-selection-warning": string;
+  "selection-limit-exceed": string;
   "week-avg": string,
   "month-avg": string,
   "show-graph": string;
