@@ -28,13 +28,17 @@ export function getEventMarkerList(
 ): EventMarker[]{
     const startDate: Date = new Date(graphStartDate);
     const endDate: Date = new Date(graphEndDate);
+    
+    console.log(startDate);
+    console.log(endDate);
+    console.log(eventListByStartDateAsc.length);
 
     let targetEventList: MyEvent[] = [];
     for(let i=0; i<eventListByStartDateAsc.length; i++){
         const event: MyEvent = eventListByStartDateAsc[i];
         if(
             event.start.getTime() >= startDate.getTime() &&
-            event.end.getTime() <= endDate.getTime()
+            event.start.getTime() <= endDate.getTime()
         ){
             targetEventList.push(event);
         }
@@ -45,7 +49,7 @@ export function getEventMarkerList(
         const event: MyEvent = targetEventList[i];
         if(
             event.start.getTime() >= startDate.getTime() &&
-            event.end.getTime() <= endDate.getTime()
+            event.start.getTime() <= endDate.getTime()
         ){
             const markerElem: EventMarker = {
                 time: formatDateYYYY_MM_DD(event.start),
