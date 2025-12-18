@@ -28,10 +28,6 @@ export function getEventMarkerList(
 ): EventMarker[]{
     const startDate: Date = new Date(graphStartDate);
     const endDate: Date = new Date(graphEndDate);
-    
-    console.log(startDate);
-    console.log(endDate);
-    console.log(eventListByStartDateAsc.length);
 
     let targetEventList: MyEvent[] = [];
     for(let i=0; i<eventListByStartDateAsc.length; i++){
