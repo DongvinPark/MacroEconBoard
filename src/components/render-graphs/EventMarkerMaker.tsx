@@ -1,4 +1,5 @@
 import { COLORS } from "../../constants/Colors";
+import { VALUES } from "../../constants/Values";
 import { formatDateYYYY_MM_DD } from "../../utils/DateFormater";
 import type { MyEvent } from "../downloader/EventJsonDownloader";
 
@@ -9,6 +10,21 @@ export type EventMarker = {
     shape: string,
     size: number,
     text: string,
+}
+
+export function getFirstValidDate(
+    inputList: {time:string, value:number}[]
+): string|undefined {
+    for(let i=0; i<inputList.length-1; i++){
+        const curElem = inputList[i];
+        const nextElem = inputList[i+1];
+        if(curElem.value !== VALUES.EMTPY_FOR_GRAPH){
+            return undefined;
+        }else if(curElem.value == VALUES.EMTPY_FOR_GRAPH && nextElem.value !== VALUES.EMTPY_FOR_GRAPH){
+            return nextElem.time;
+        }
+    }
+    return undefined;
 }
 
 /* 예시 마커 1 개의 형태
@@ -53,7 +69,7 @@ export function getEventMarkerList(
                 color: COLORS.eventMarkerColor,
                 shape: "circle",
                 size: 1,
-                text: "E" + (i+1)
+                text: VALUES.emptyStr//"E" + (i+1)
             };
             resultList.push(markerElem);
         }

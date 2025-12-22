@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { createChart, type IChartApi, type LineData, type Time } from "lightweight-charts";
+import { createChart, LineSeries, createSeriesMarkers, type IChartApi, type LineData, type Time } from "lightweight-charts";
 import type { MyEvent } from "../downloader/EventJsonDownloader"
 import { COLORS } from "../../constants/Colors";
 import { VALUES } from "../../constants/Values";
@@ -7,7 +7,7 @@ import updateTimeAndValueData from "./PlotDataUpdater";
 import { clearOverlay, drawOverlay } from "./EventTracingAreaRenderer";
 import { findEventsInRangeByStartDateAndEndDate, findEventsInRangeByStartDate } from "./EventFinder";
 import { formatDateYYYY_MM_DD } from "../../utils/DateFormater";
-import { getEventMarkerList, type EventMarker } from "./EventMarkerMaker";
+import { getFirstValidDate, getEventMarkerList, type EventMarker } from "./EventMarkerMaker";
 
 type GraphProps = {
   timeAndValueData: { time: string, value: number }[];
@@ -96,7 +96,7 @@ const ChartWithEvent: React.FC<GraphProps> = ({
 
     chartRef.current = chart;
 
-    const line = chart.addLineSeries({
+    const line = chart.addSeries(LineSeries, {
       color: COLORS.rolexGreenColor,
       lineWidth: 2,
       lastValueVisible: false,
@@ -108,12 +108,14 @@ const ChartWithEvent: React.FC<GraphProps> = ({
     line.setData(reducedData);
 
     // 이벤트들의 시작 날짜를 기준으로 그래프에 라벨을 표시한다.
+    const firstValidDate: string|undefined = getFirstValidDate(timeAndValueData);
     const enventMarkers: EventMarker[]|any = getEventMarkerList(
-      reducedData[0].time,
+      firstValidDate == undefined ? reducedData[0].time : firstValidDate,
       reducedData[reducedData.length-1].time,
       eventDataByStart
     );
-    line.setMarkers(enventMarkers);
+    const seriesMarker = createSeriesMarkers(line);
+    seriesMarker.setMarkers(enventMarkers);
 
     chart.timeScale().fitContent();
     chart.timeScale().scrollToRealTime();
