@@ -9,6 +9,9 @@ export const VALUES = {
 
     endDateForOnGoingEvent: new Date("2100-12-31"),
 
+    // 그래프 렌더링 시, '값이 없는 시간'를 표시하기 위한 데이터를 만들 때 사용함.
+    EMTPY_FOR_GRAPH: Number.MIN_SAFE_INTEGER, 
+
     elapsedTimeThresholdMs: 150,
     moveThreshold: 5,
 
