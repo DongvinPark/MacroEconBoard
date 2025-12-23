@@ -185,7 +185,7 @@ function ShowGraph(
                                 <p></p>
                                 <div
                                     style={{ 
-                                        color: COLORS.brightGreen,
+                                        color: COLORS.rolexGreenColor,
                                         fontWeight: "bold",
                                         fontSize: "18px"
                                     }}
