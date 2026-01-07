@@ -4,7 +4,8 @@ import { type AppMeta } from '../../utils/AppMeta'
 type JsonFileDownloaderProps = {
     appMeta: AppMeta;
     currentLang: string;
-    duration: number;
+    durationFrom: number;
+    durationTo: number;
     sortedIndicators: Record<string, string[]>;
 }
 
@@ -13,7 +14,7 @@ type GraphData = Map<
 >;
 
 async function downloadJsonFilesForGraph(
-    { appMeta, currentLang, duration, sortedIndicators }: JsonFileDownloaderProps
+    { appMeta, currentLang, durationFrom, durationTo, sortedIndicators }: JsonFileDownloaderProps
 ) {
     const currentYear = new Date().getFullYear();
     const cdnRoot = import.meta.env.VITE_CDN_ROOT_URL;
@@ -28,7 +29,7 @@ async function downloadJsonFilesForGraph(
         const tasks: Promise<{ time: string; value: number }[]>[] = [];
 
         // 이 루프에서는 Promise 타입 태스크들을 만들어서 tasks 라는 일종의 큐에 집어 넣으며 실행시킨다.
-        for (let year = currentYear - duration; year <= currentYear; year++) {
+        for (let year = durationFrom; year <= durationTo; year++) {
             const isPast = year < currentYear;
             const base = isPast ? "past-year" : "this-year";
 

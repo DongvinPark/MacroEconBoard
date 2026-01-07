@@ -55,8 +55,10 @@ function App() {
     });
   };
 
-  // 기간 선택 : default 기간은 최근 1 년
-  const [duration, setDuration] = useState<number>(1);
+  // 기간 선택 'from' and 'to'. 기본 값은 '올해'다.
+  const currentYear: number = new Date().getFullYear();
+  const [durationFrom, setDurationFrom] = useState<number>(currentYear);
+  const [durationTo, setDurationTo] = useState<number>(currentYear);
 
   //테스트용 체크박스 선택창에서 ✅ 표시 상태가 바뀔 때마다 콘솔에 찍어보기
   // useEffect(
@@ -123,14 +125,22 @@ function App() {
       <DurationSelection
         appMeta={meta}
         currentLang={lang}
-        onChangeDuration={(newDuration) => setDuration(newDuration)}
+        onChangeDuration={(newDuration) => setDurationFrom(newDuration)}
+        isFromPart={true}
+      />
+      <DurationSelection
+        appMeta={meta}
+        currentLang={lang}
+        onChangeDuration={(newDuration) => setDurationTo(newDuration)}
+        isFromPart={false}
       />
       <br></br>
 
       <ShowGraph
         appMeta={meta}
         currentLang={lang}
-        duration={duration}
+        durationFrom={durationFrom}
+        durationTo={durationTo}
         selectedIndicators={selectedIndicators}
       />
       <br></br>

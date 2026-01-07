@@ -31,6 +31,8 @@ export type UiContentText = {
   "duration-year-word": string[];
   "no-selection-warning": string;
   "selection-limit-exceed": string;
+  "invalid-duration" : string,
+  "duration-limit-exceed": string[],
   "week-avg": string,
   "month-avg": string,
   "show-graph": string;
@@ -43,7 +45,8 @@ export type ContentsTextWithTranslation = Record<string, UiContentText>;
 export type AppMeta = {
     "app-version": string;
     "developer-email": string;
-    "supporting-duration-years": number[];
+    "max-duration-year": number;
+    "earliest-year": number;
     title: string;
     "max-index-cnt": number;
     "max-search-record-cnt": number;

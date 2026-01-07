@@ -10,7 +10,8 @@ import { COLORS } from "../../constants/Colors";
 type ShowGraphProps = {
     appMeta: AppMeta;
     currentLang: string;
-    duration: number;
+    durationFrom: number;
+    durationTo: number;
     selectedIndicators: Record<string, string[]>;
 };
 
@@ -20,7 +21,7 @@ type GraphData = Map<
 
 function ShowGraph(
     { 
-        appMeta, currentLang, duration, selectedIndicators
+        appMeta, currentLang, durationFrom, durationTo, selectedIndicators
     }: ShowGraphProps
 ) {
 
@@ -57,6 +58,20 @@ function ShowGraph(
 
     // 버튼 클릭 시 로직
     const handleShowGraphs = async () => {
+        // 기간 선택이 잘못됐을 때는 렌더링 하지 않는다.
+        if(durationFrom > durationTo){
+            alert(appMeta["contents-text"][currentLang]["invalid-duration"]);
+            return;
+        }
+        if( (durationTo - durationFrom) > appMeta["max-duration-year"] ){
+            alert(
+                appMeta["contents-text"][currentLang]["duration-limit-exceed"][0] + 
+                appMeta["max-duration-year"] + 
+                appMeta["contents-text"][currentLang]["duration-limit-exceed"][1]
+            );
+            return;
+        }
+
         // 지표를 아무것도 선택하지 않았을 때는 렌더링 하지 않는다.
         if (Object.entries(sortedIndicators).length === 0) {
             alert(appMeta["contents-text"][currentLang]["no-selection-warning"]);
@@ -81,12 +96,12 @@ function ShowGraph(
         setShowGraphs(false);
 
         // 최초 그래프 그릴 때 사용한 duration 값 기록
-        setFrozenDuration(duration);
+        setFrozenDuration((durationTo - durationFrom + 1));
         
         // React에서는 async 함수를 호출하더라도, await를 앞에 붙여서 호출하지 않으면
         // 말 그대로 'wait'를 하지 않는다.
         const graphDataAsync: GraphData = await downloadJsonFilesForGraph({
-            appMeta, currentLang, duration, sortedIndicators
+            appMeta, currentLang, durationFrom, durationTo, sortedIndicators
         });
         setGraphData(graphDataAsync);
 
