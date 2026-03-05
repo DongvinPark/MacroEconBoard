@@ -60,16 +60,14 @@ async function downloadJsonFilesForGraph(
     }
 
     // resultMap에서 가장 이른 날짜 데이터를 가지고 있는 지표를 찾아낸다.
-    let earliestKey: string | null = null;
     let earliestDate: string | null = null;
-    for (const [key, list] of resultMap.entries()) {
+    for (const [_key, list] of resultMap.entries()) {
         if (!list.length) continue;
 
         const firstDate = list[0].time; // 이미 정렬돼 있음.
 
         if (!earliestDate || firstDate < earliestDate) {
             earliestDate = firstDate;
-            earliestKey = key;
             longestDataList = list;
         }
     }
