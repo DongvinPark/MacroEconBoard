@@ -124,13 +124,11 @@ function App() {
 
       <DurationSelection
         appMeta={meta}
-        currentLang={lang}
         onChangeDuration={(newDuration) => setDurationFrom(newDuration)}
         isFromPart={true}
       />
       <DurationSelection
         appMeta={meta}
-        currentLang={lang}
         onChangeDuration={(newDuration) => setDurationTo(newDuration)}
         isFromPart={false}
       />

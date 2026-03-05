@@ -12,9 +12,9 @@ export function clearOverlay(overlayRef: RefObject<HTMLDivElement | null>){
 export function drawOverlay(
   chart: IChartApi,
   overlayRef: RefObject<HTMLDivElement | null>,
-  startTime: Time|undefined,
+  startTime: Time,
   endTime: Time|undefined,
-  curTime: Time|undefined
+  curTime: Time
 ) {
   if (!chart || !overlayRef.current) return;
   if (

@@ -1,9 +1,6 @@
 import { VALUES } from '../../constants/Values';
-import { type AppMeta } from '../../utils/AppMeta'
 
 type JsonFileDownloaderProps = {
-    appMeta: AppMeta;
-    currentLang: string;
     durationFrom: number;
     durationTo: number;
     sortedIndicators: Record<string, string[]>;
@@ -14,7 +11,7 @@ type GraphData = Map<
 >;
 
 async function downloadJsonFilesForGraph(
-    { appMeta, currentLang, durationFrom, durationTo, sortedIndicators }: JsonFileDownloaderProps
+    { durationFrom, durationTo, sortedIndicators }: JsonFileDownloaderProps
 ) {
     const currentYear = new Date().getFullYear();
     const cdnRoot = import.meta.env.VITE_CDN_ROOT_URL;
@@ -59,20 +56,30 @@ async function downloadJsonFilesForGraph(
         // indexName 의 모든 연도 fetch가 완료될 때까지 '기다린다'.
         const allResults = (await Promise.all(tasks)).flat();
 
-        // 가장 많은 날짜 데이터 가진 리스트 찾기.
-        if(allResults.length >= longestDataList.length){
-            longestDataList = allResults;
-        }
-
         resultMap.set(indexName, allResults);
+    }
+
+    // resultMap에서 가장 이른 날짜 데이터를 가지고 있는 지표를 찾아낸다.
+    let earliestKey: string | null = null;
+    let earliestDate: string | null = null;
+    for (const [key, list] of resultMap.entries()) {
+        if (!list.length) continue;
+
+        const firstDate = list[0].time; // 이미 정렬돼 있음.
+
+        if (!earliestDate || firstDate < earliestDate) {
+            earliestDate = firstDate;
+            earliestKey = key;
+            longestDataList = list;
+        }
     }
 
     // 최종 렌더링 되는 그래프들의 X 축 시간 범위 통일을 위해서, 첫 데이터 시작 날짜가 더 늦는 지표들의 데이터는
     // dummy date 들로 채운다.
     // 예를 들어서, KOSPI는 첫 날짜가 1980 년대에 있지만, Bitcoin(BTC)은 첫 공식 데이터의 날짜가 2014년부터다.
     // kospi와 BTC를 둘다 2025년 기준 '최근 20년'으로 조회한다면,
-    // BTC는 2005년부터 2013년까지를 dummy date로 채우는 것.
-    for(let [key, allResults] of resultMap){
+    // BTC는 2005년부터 2013년까지를 dummy data로 채우는 것.
+    for(const allResults of resultMap.values()){
         const curIdxFirstDate: Date = new Date(allResults[0].time);
         for(let i=0; i<longestDataList.length; i++){
             const curDummyDateStr: string = longestDataList[i].time;

@@ -2,13 +2,12 @@ import { type AppMeta } from '../../utils/AppMeta'
 
 type DurationProps = {
     appMeta: AppMeta;
-    currentLang: string;
     onChangeDuration: (newDuration: number) => void;
     isFromPart: boolean;
 }
 
 function DurationSelection(
-    {appMeta, currentLang, onChangeDuration, isFromPart}: DurationProps
+    {appMeta, onChangeDuration, isFromPart}: DurationProps
 ) {
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

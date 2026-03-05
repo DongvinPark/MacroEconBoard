@@ -3,7 +3,7 @@ import type { AppMeta, IndexItem } from "../../utils/AppMeta";
 import ChartWithEvent from "../render-graphs/ChartWithEvent";
 import downloadJsonFilesForGraph from "../../components/downloader/JsonFileDownloader";
 import type { RawEvent, MyEvent } from "../../components/downloader/EventJsonDownloader";
-import { loadMyEventsAscByEndDate, loadMyEventsAscByStartDate, loadMyEventsList, loadRawEventsData } from "../../components/downloader/EventJsonDownloader";
+import { loadMyEventsAscByStartDate, loadMyEventsList, loadRawEventsData } from "../../components/downloader/EventJsonDownloader";
 import { getIndexMetaList } from "../downloader/FilterIndexMeta";
 import { COLORS } from "../../constants/Colors";
 
@@ -33,9 +33,9 @@ function ShowGraph(
                         // useState<...>(...); 여기에서 <> 안의 ... 부분에 타입을 꼭 정의해줘야 한다.
     const [graphMeta, setGraphMeta] = useState<IndexItem[]>([]); // 그래프 표시용 메타데이터
 
-    const [myEvents, setMyEvents] = useState<MyEvent[]>(); // 전체 이벤트 리스트
+    //const [myEvents, setMyEvents] = useState<MyEvent[]>(); // 전체 이벤트 리스트 - 20260305 현재 안 씀.
     const [eventsByStart, setEventsByStart] = useState<MyEvent[]>(); // 시작 날짜 기준 ASC
-    const [eventsByEnd, setEventsByEnd] = useState<MyEvent[]>(); // 종료 날짜 기준 ASC
+    //const [eventsByEnd, setEventsByEnd] = useState<MyEvent[]>(); // 종료 날짜 기준 ASC - 20260305 현재 안 씀.
     // 그래프 메타데이터 최초 렌더링 후, 해당 표시 내용 고정 용
     const [frozenDuration, setFrozenDuration] = useState<number>(0);
 
@@ -101,7 +101,7 @@ function ShowGraph(
         // React에서는 async 함수를 호출하더라도, await를 앞에 붙여서 호출하지 않으면
         // 말 그대로 'wait'를 하지 않는다.
         const graphDataAsync: GraphData = await downloadJsonFilesForGraph({
-            appMeta, currentLang, durationFrom, durationTo, sortedIndicators
+            durationFrom, durationTo, sortedIndicators
         });
         setGraphData(graphDataAsync);
 
@@ -112,11 +112,11 @@ function ShowGraph(
         // 이벤트 정보 다운로드 후 정렬된 이벤트 생성
         const loadedEvents: RawEvent[] = await loadRawEventsData();
         const myEvents: MyEvent[] = loadMyEventsList(loadedEvents);
-        setMyEvents(myEvents);
+        //setMyEvents(myEvents); - 20260305 현재 쓰지 않음.
         const eventsByStartDate = loadMyEventsAscByStartDate(myEvents);
         setEventsByStart(eventsByStartDate);
-        const eventsByEndDate = loadMyEventsAscByEndDate(myEvents);
-        setEventsByEnd(eventsByEndDate);
+        //const eventsByEndDate = loadMyEventsAscByEndDate(myEvents); - 20260305 현재 쓰지 않음.
+        //setEventsByEnd(eventsByEndDate); - 20260305 현재 쓰지 않음.
 
         // 로딩 완료 후 그래프 표시
         setLoading(false);
@@ -223,10 +223,7 @@ function ShowGraph(
                                 </div>
                                 <ChartWithEvent
                                     timeAndValueData={graphData.get(indicatorMeta.key)}
-                                    totalEvents={myEvents === undefined ? [] : myEvents}
                                     eventDataByStart={eventsByStart === undefined ? [] : eventsByStart}
-                                    eventDataByEnd={eventsByEnd === undefined ? [] : eventsByEnd}
-                                    graphName={graphMeta[0].key}
                                     durationYear={frozenDuration}
                                     language={currentLang}
                                 />

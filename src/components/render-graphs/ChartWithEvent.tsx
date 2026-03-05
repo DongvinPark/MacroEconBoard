@@ -1,30 +1,24 @@
 import { useEffect, useRef, useState } from "react";
-import { createChart, LineSeries, createSeriesMarkers, type IChartApi, type LineData, type Time } from "lightweight-charts";
+import { createChart, LineSeries, createSeriesMarkers, type IChartApi, type Time } from "lightweight-charts";
 import type { MyEvent } from "../downloader/EventJsonDownloader"
 import { COLORS } from "../../constants/Colors";
 import { VALUES } from "../../constants/Values";
 import updateTimeAndValueData from "./PlotDataUpdater";
 import { clearOverlay, drawOverlay } from "./EventTracingAreaRenderer";
-import { findEventsInRangeByStartDateAndEndDate, findEventsInRangeByStartDate } from "./EventFinder";
+import { findEventsInRangeByStartDate } from "./EventFinder";
 import { formatDateYYYY_MM_DD } from "../../utils/DateFormater";
 import { getFirstValidDate, getEventMarkerList, type EventMarker } from "./EventMarkerMaker";
 
 type GraphProps = {
   timeAndValueData: { time: string, value: number }[];
-  totalEvents: MyEvent[];
   eventDataByStart: MyEvent[];
-  eventDataByEnd: MyEvent[];
-  graphName: string;
   durationYear: number;
   language: string;
 };
 
 const ChartWithEvent: React.FC<GraphProps> = ({
   timeAndValueData,
-  totalEvents,
   eventDataByStart,
-  eventDataByEnd,
-  graphName,
   durationYear,
   language}) => {
 
@@ -43,7 +37,6 @@ const ChartWithEvent: React.FC<GraphProps> = ({
 
   // 사용자가 그래프 내부를 드래그 할 때, 이벤트 추적 대상 구간에 히당하는 이벤트 리스트 표시용.
   const [tooltip, setTooltip] = useState<any>(null);
-  const targetEvents = useRef<MyEvent[]>([]);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
