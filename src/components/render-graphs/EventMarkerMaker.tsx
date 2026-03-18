@@ -41,38 +41,42 @@ export function getEventMarkerList(
     graphStartDate: string,
     graphEndDate: string,
     eventListByStartDateAsc: MyEvent[]
-): EventMarker[]{
+): EventMarker[] {
     const startDate: Date = new Date(graphStartDate);
     const endDate: Date = new Date(graphEndDate);
 
+    const MS_PER_DAY = 1000 * 60 * 60 * 24;
+    const visibleDays = Math.floor(
+        (endDate.getTime() - startDate.getTime()) / MS_PER_DAY
+    );
+    const isOverTwoYears = visibleDays > 365 * 2;
+
     let targetEventList: MyEvent[] = [];
-    for(let i=0; i<eventListByStartDateAsc.length; i++){
+    for (let i = 0; i < eventListByStartDateAsc.length; i++) {
         const event: MyEvent = eventListByStartDateAsc[i];
-        if(
+        if (
             event.start.getTime() >= startDate.getTime() &&
             event.start.getTime() <= endDate.getTime()
-        ){
-            targetEventList.push(event);
+        ) {
+            if (!isOverTwoYears || event.importance >= VALUES.eventRenderYearDuration) {
+                targetEventList.push(event);
+            }
         }
     }
 
     let resultList: EventMarker[] = [];
-    for(let i=0; i<targetEventList.length; i++){
+    for (let i = 0; i < targetEventList.length; i++) {
         const event: MyEvent = targetEventList[i];
-        if(
-            event.start.getTime() >= startDate.getTime() &&
-            event.start.getTime() <= endDate.getTime()
-        ){
-            const markerElem: EventMarker = {
-                time: formatDateYYYY_MM_DD(event.start),
-                position: "aboveBar",
-                color: COLORS.eventMarkerColor,
-                shape: "circle",
-                size: 1,
-                text: VALUES.emptyStr//"E" + (i+1)
-            };
-            resultList.push(markerElem);
-        }
+        const markerElem: EventMarker = {
+            time: formatDateYYYY_MM_DD(event.start),
+            position: "aboveBar",
+            color: COLORS.eventMarkerColor,
+            shape: "circle",
+            size: 1,
+            text: VALUES.emptyStr // "E" + (i+1)
+        };
+        resultList.push(markerElem);
     }
+
     return resultList;
 }

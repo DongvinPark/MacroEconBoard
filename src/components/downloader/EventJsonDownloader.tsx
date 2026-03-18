@@ -9,6 +9,9 @@ export type RawEvent = {
     descriptionEn: string;
     locationKr: string;
     locationEn: string;
+    eventType: string;
+    category: string;
+    importance: number;
 }
 
 export type MyEvent = {
@@ -21,6 +24,9 @@ export type MyEvent = {
     descriptionEn: string;
     locationKr: string;
     locationEn: string;
+    eventType: string;
+    category: string;
+    importance: number;
 }
 
 export async function loadRawEventsData(): Promise<RawEvent[]> {
@@ -48,6 +54,9 @@ export function loadMyEventsList(inputList: RawEvent[]): MyEvent[] {
                 descriptionEn: item.descriptionEn,
                 locationKr: item.locationKr,
                 locationEn: item.locationEn,
+                eventType: item.eventType,
+                category: item.category,
+                importance: item.importance
             };
             resultList.push(elem);
         } else {
@@ -61,6 +70,9 @@ export function loadMyEventsList(inputList: RawEvent[]): MyEvent[] {
                 descriptionEn: item.descriptionEn,
                 locationKr: item.locationKr,
                 locationEn: item.locationEn,
+                eventType: item.eventType,
+                category: item.category,
+                importance: item.importance
             };
             resultList.push(elem);
         }

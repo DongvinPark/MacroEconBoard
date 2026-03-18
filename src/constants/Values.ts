@@ -17,4 +17,12 @@ export const VALUES = {
     elapsedTimeThresholdMs: 150,
     moveThreshold: 5,
 
+    // 그래프에 이벤트 렌더링 할 때, 렌더링 대상 이벤트 구분하기 위한 기준 기간
+    eventRenderYearDuration: 2,
+
+    // 이벤트 중요도
+    mostImportantEvent: 3,
+    secondaryImportantEvent: 2,
+    thirdImportantEvent: 1
+
 } as const;

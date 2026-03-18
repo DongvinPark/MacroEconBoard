@@ -1,3 +1,4 @@
+import { VALUES } from "../../constants/Values";
 import type { MyEvent } from "../downloader/EventJsonDownloader";
 
 /**
@@ -88,19 +89,30 @@ function upperBound<T>(arr: T[], target: number, get: (t: T) => number): number{
 
 
 export function findEventsInRangeByStartDate(
+    durationYear: number,
     startDate: Date,
     endDate: Date,
     inputListStartAsc: MyEvent[]
-): MyEvent[]{
+): MyEvent[] {
     let resultList: MyEvent[] = [];
 
-    for(let i=0; i<inputListStartAsc.length; i++){
+    const shouldFilterByImportance = durationYear > VALUES.eventRenderYearDuration;
+
+    for (let i = 0; i < inputListStartAsc.length; i++) {
         const eventElem = inputListStartAsc[i];
-        if(
+
+        if (
             eventElem.start.getTime() >= startDate.getTime() &&
             eventElem.start.getTime() <= endDate.getTime()
-        ){
-            resultList.push(eventElem);
+        ) {
+            const importance = eventElem.importance ?? VALUES.thirdImportantEvent;
+
+            if (
+                !shouldFilterByImportance ||
+                importance >= VALUES.eventRenderYearDuration
+            ) {
+                resultList.push(eventElem);
+            }
         }
     }
 
