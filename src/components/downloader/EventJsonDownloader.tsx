@@ -30,7 +30,12 @@ export type MyEvent = {
 }
 
 export async function loadRawEventsData(): Promise<RawEvent[]> {
-    const response = await fetch(import.meta.env.VITE_EVENT_LIST_DOWNLOAD_URL);
+    const response = await fetch(
+        import.meta.env.VITE_EVENT_LIST_DOWNLOAD_URL,
+        // 이 옵션을 줘야 S3 + CDN은 업데이트 됐는데
+        // 브라우저 캐시 때문에 옛날 파일을 보고 있는 문제를 해결할 수 있다.
+        { cache: "no-store" }
+    );
     if (!response.ok){
         throw new Error(`HTTP error! status : ${response.status}`);
     }
