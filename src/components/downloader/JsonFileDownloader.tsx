@@ -78,13 +78,24 @@ async function downloadJsonFilesForGraph(
     // kospi와 BTC를 둘다 2025년 기준 '최근 20년'으로 조회한다면,
     // BTC는 2005년부터 2013년까지를 dummy data로 채우는 것.
     for(const allResults of resultMap.values()){
-        const curIdxFirstDate: Date = new Date(allResults[0].time);
-        for(let i=0; i<longestDataList.length; i++){
-            const curDummyDateStr: string = longestDataList[i].time;
-            if(new Date(curDummyDateStr).getTime() < curIdxFirstDate.getTime()){
-                allResults.push(
-                    {time: curDummyDateStr, value: VALUES.EMTPY_FOR_GRAPH}
-                );
+
+        // 🛠️ 개선: 데이터가 아예 없는 지표라면, longestDataList의 모든 날짜를 dummy로 채웁니다.
+        if (allResults.length === 0) {
+            for(let i=0; i<longestDataList.length; i++){
+                allResults.push({
+                    time: longestDataList[i].time, 
+                    value: VALUES.EMTPY_FOR_GRAPH
+                });
+            }
+        } else {
+            const curIdxFirstDate: Date = new Date(allResults[0].time);
+            for(let i=0; i<longestDataList.length; i++){
+                const curDummyDateStr: string = longestDataList[i].time;
+                if(new Date(curDummyDateStr).getTime() < curIdxFirstDate.getTime()){
+                    allResults.push(
+                        {time: curDummyDateStr, value: VALUES.EMTPY_FOR_GRAPH}
+                    );
+                }
             }
         }
         // 시간순 정렬(그래프 그릴 때 사용돼야 하므로)
@@ -105,20 +116,17 @@ Promise를 큐에 넣어 두고 순서대로 resolve 해주는 방식으로 동�
 function createLimiter(max: number) {
     // createLimiter 함수는 함수 객체를 리턴하는 팩토리 함수다. Java/C++ 의 클래스와 거의 똑같이 기능한다.
     let running = 0;
-    const queue: Function[] = [];
+    const queue: (() => void)[] = [];
 
     // JS/TS 에서는 함수도 객체 취급이다. 변수처럼 정의 및 리턴 될 수 있다.
-    const next = () => {
-        if (running >= max) return;
-        const fn = queue.shift(); // queue.poll()과 같다.
-        if (!fn) return;
+const next = () => {
+        if (running >= max || queue.length === 0) return;
+        
         running++;
-        fn().finally( // 여기가 실제 비동기 fetching 작업을 처리하는 곳이다.
-            () => {
-                running--;
-                next();
-            }
-        );
+        const run = queue.shift(); // poll-first()와 같다.
+        if (run) {
+            run(); // <-- 여기가 실제로 일이 처리되는 곳이다.
+        }
     };
 
     /*
@@ -129,9 +137,21 @@ function createLimiter(max: number) {
         fn: () => Promise<T>//limiter 라는 함수는 아무 입력을 받지 않고 프로미스를 반환하는 함수 1 개를 인자로서 받는다.
     ): Promise<T> {
         return new Promise((resolve, reject) => {
-            const run = () => fn().then(resolve).catch(reject);
+            const run = async () => {
+                try {
+                    const result = await fn();
+                    resolve(result);
+                } catch (error) {
+                    reject(error);
+                } finally {
+                    // 🛠️ 어떤 일이 있어도 반드시 running을 줄이고 다음 작업을 호출함
+                    running--;
+                    next();// 바로 위에 정의돼 있는 next 라는 함수객체를 실행시킨다.
+                }
+            };
+
             queue.push(run);
-            next(); // 바로 위에 정의돼 있는 next 라는 함수객체를 실행시킨다.
+            next();
         });
     };
 }
