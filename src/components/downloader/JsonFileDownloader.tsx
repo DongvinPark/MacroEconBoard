@@ -1,4 +1,5 @@
 import { VALUES } from '../../constants/Values';
+import { PromiseLimiter } from './PromiseLimiter';
 
 type JsonFileDownloaderProps = {
     durationFrom: number;
@@ -6,154 +7,107 @@ type JsonFileDownloaderProps = {
     sortedIndicators: Record<string, string[]>;
 }
 
+type GraphDataItem = { time: string; value: number };
 type GraphData = Map<
     string, {time: string, value: number}[]
 >;
 
 async function downloadJsonFilesForGraph(
     { durationFrom, durationTo, sortedIndicators }: JsonFileDownloaderProps
-) {
+): Promise<GraphData> {
     const currentYear = new Date().getFullYear();
     const cdnRoot = import.meta.env.VITE_CDN_ROOT_URL;
     const resultMap: GraphData = new Map();
-    // 동시성 제한 함수 (p-limit 방식을 따르도록 구현)
-    const limiter = createLimiter(VALUES.jsonDownloaderThreadCnt); // 최대 동시 실행 태스크 개수 제한
+    
+    // 1. 모든 파일 다운로드 태스크를 담을 단일 배열 선언
+    const allIndicatorTasks: Promise<void>[] = [];
+    const limiter = new PromiseLimiter(VALUES.jsonDownloaderThreadCnt);
 
-    let longestDataList: {time:string, value:number}[] = [];
-
-    // 각 indexName 별로 전체 요청을 모아서 병렬 실행
+    // 2. 큐에 모든 태스크를 병렬로 먼저 주입
     for (const [indexName, [categoryName]] of Object.entries(sortedIndicators)) {
-        const tasks: Promise<{ time: string; value: number }[]>[] = [];
+        const yearTasks: Promise<GraphDataItem[]>[] = [];
 
-        // 이 루프에서는 Promise 타입 태스크들을 만들어서 tasks 라는 일종의 큐에 집어 넣으며 실행시킨다.
         for (let year = durationFrom; year <= durationTo; year++) {
             const isPast = year < currentYear;
             const base = isPast ? "past-year" : "this-year";
+            const url = `${cdnRoot}${base}/${categoryName}/${indexName}/${year}-${indexName}.json`;
 
-            const url =
-                `${cdnRoot}${base}/${categoryName}/${indexName}/` +
-                `${year}-${indexName}.json`;
-
-            // limit() 안에 fetch 작업을 넣어 동시성 제한
-            const task = limiter(
-                async () => {
+            // 각 파일 다운로드를 PromiseLimiter 에 태움
+            const task = limiter.run(async () => {
+                try {
                     const res = await fetch(url);
-                    if (!res.ok) return []; // 404 등 무시 (엣지 케이스 대응 코드 추가할 수 있음)
+                    if (!res.ok) return [];
 
                     const raw = await res.json();
                     if (raw.length > 0 && "value" in raw[0]) {
-                        return raw; // 이미 { time, value } 타입의 json일 경우.
-                    } else {
-                        // {time, open, high, ..., close} 같은 캔들형 json일 경우.
-                        return raw.map(
-                            ( { time, close }: any ) => ( {time, value: close} )
-                        );
+                        return raw as GraphDataItem[];
                     }
+                    return raw.map(({ time, close }: any) => ({ time, value: close }));
+                } catch (error) {
+                    console.error(`Failed to fetch: ${url}`, error);
+                    return [];
                 }
-            );
-            tasks.push(task);
+            });
+            yearTasks.push(task);
         }
-        // indexName 의 모든 연도 fetch가 완료될 때까지 '기다린다'.
-        const allResults = (await Promise.all(tasks)).flat();
 
-        resultMap.set(indexName, allResults);
+        // 지표별로 묶어서 결과를 resultMap에 세팅하는 흐름을 하나의 상위 프로미스로 관리
+        const indicatorProcess = Promise.all(yearTasks).then((results) => {
+            resultMap.set(indexName, results.flat());
+        });
+        
+        allIndicatorTasks.push(indicatorProcess);
     }
 
-    // resultMap에서 가장 이른 날짜 데이터를 가지고 있는 지표를 찾아낸다.
-    let earliestDate: string | null = null;
-    for (const [_key, list] of resultMap.entries()) {
-        if (!list.length) continue;
+    // 3. 글로벌 큐에 쌓인 200~300개의 다운로드가 동시성 제한 개수(ThreadCnt)만큼 동시에 완료됨
+    await Promise.all(allIndicatorTasks);
 
-        const firstDate = list[0].time; // 이미 정렬돼 있음.
+    // 4. 가장 데이터 범위가 넓은(가장 이른 날짜) 기준 데이터 리스트 찾기
+    let longestDataList: GraphDataItem[] = [];
+    let earliestTime = "";
 
-        if (!earliestDate || firstDate < earliestDate) {
-            earliestDate = firstDate;
+    for (const list of resultMap.values()) {
+        const firstItemTime = list[0]?.time; // 🛠️ Optional chaining으로 안전하게 접근
+        if (!firstItemTime) continue;
+
+        if (!earliestTime || firstItemTime < earliestTime) {
+            earliestTime = firstItemTime;
             longestDataList = list;
         }
     }
 
-    // 최종 렌더링 되는 그래프들의 X 축 시간 범위 통일을 위해서, 첫 데이터 시작 날짜가 더 늦는 지표들의 데이터는
-    // dummy date 들로 채운다.
-    // 예를 들어서, KOSPI는 첫 날짜가 1980 년대에 있지만, Bitcoin(BTC)은 첫 공식 데이터의 날짜가 2014년부터다.
-    // kospi와 BTC를 둘다 2025년 기준 '최근 20년'으로 조회한다면,
-    // BTC는 2005년부터 2013년까지를 dummy data로 채우는 것.
-    for(const allResults of resultMap.values()){
+    // 5. 기준 데이터셋 기반으로 빈 데이터 구간 Dummy Data 채우기
+    const longestDataTimes = longestDataList.map(item => item.time);
 
-        // 🛠️ 개선: 데이터가 아예 없는 지표라면, longestDataList의 모든 날짜를 dummy로 채웁니다.
+    for (const [indexName, allResults] of resultMap.entries()) {
+        // 데이터가 아예 없는 지표 처리
         if (allResults.length === 0) {
-            for(let i=0; i<longestDataList.length; i++){
-                allResults.push({
-                    time: longestDataList[i].time, 
-                    value: VALUES.EMTPY_FOR_GRAPH
-                });
-            }
-        } else {
-            const curIdxFirstDate: Date = new Date(allResults[0].time);
-            for(let i=0; i<longestDataList.length; i++){
-                const curDummyDateStr: string = longestDataList[i].time;
-                if(new Date(curDummyDateStr).getTime() < curIdxFirstDate.getTime()){
-                    allResults.push(
-                        {time: curDummyDateStr, value: VALUES.EMTPY_FOR_GRAPH}
-                    );
-                }
-            }
+            const dummyList = longestDataTimes.map(time => ({ time, value: VALUES.EMTPY_FOR_GRAPH }));
+            resultMap.set(indexName, dummyList);
+            continue;
         }
-        // 시간순 정렬(그래프 그릴 때 사용돼야 하므로)
-        allResults.sort((a, b) => a.time.localeCompare(b.time));
-    }
+
+        // 데이터가 일부 늦게 시작하는 지표 처리
+        const curIdxFirstTime = allResults[0].time;
+        const dummyItems: GraphDataItem[] = [];
+
+        for (const targetTime of longestDataTimes) {
+            if (targetTime < curIdxFirstTime) {
+                dummyItems.push({ time: targetTime, value: VALUES.EMTPY_FOR_GRAPH });
+            } else {
+                break; // 정렬되어 있으므로 더 이상 검사할 필요 없음 (성능 최적화)
+            }
+        }//inner for
+
+        if (dummyItems.length > 0) {
+            // 원본 데이터 앞에 더미 데이터를 안전하게 병합 후 재정렬
+            const merged = [...dummyItems, ...allResults];
+            merged.sort((a, b) => a.time.localeCompare(b.time));
+            resultMap.set(indexName, merged);
+        }
+    }//outer for
 
     return resultMap;
-}
-
-
-// --- 동시성 제한기 (p-limit 대체) ---
-/*
-Javascript, Typescript는 Java/C++의 스레드 개념이 없다.
-대신 '이벤트 루프' + 'Promise 객체'로 동시성을 제어한다.
-즉 스레드 풀, 세마포어, 뮤텍스 대신
-Promise를 큐에 넣어 두고 순서대로 resolve 해주는 방식으로 동시성을 제한한다.
-*/
-function createLimiter(max: number) {
-    // createLimiter 함수는 함수 객체를 리턴하는 팩토리 함수다. Java/C++ 의 클래스와 거의 똑같이 기능한다.
-    let running = 0;
-    const queue: (() => void)[] = [];
-
-    // JS/TS 에서는 함수도 객체 취급이다. 변수처럼 정의 및 리턴 될 수 있다.
-const next = () => {
-        if (running >= max || queue.length === 0) return;
-        
-        running++;
-        const run = queue.shift(); // poll-first()와 같다.
-        if (run) {
-            run(); // <-- 여기가 실제로 일이 처리되는 곳이다.
-        }
-    };
-
-    /*
-    limiter<T> 에서 T는 프로미스의 결과물의 타입이다.
-    프로미스가 어떤 타입을 다룰지 모르기 때문에 generic T로 쓴 것.
-    */
-    return function limiter<T>(
-        fn: () => Promise<T>//limiter 라는 함수는 아무 입력을 받지 않고 프로미스를 반환하는 함수 1 개를 인자로서 받는다.
-    ): Promise<T> {
-        return new Promise((resolve, reject) => {
-            const run = async () => {
-                try {
-                    const result = await fn();
-                    resolve(result);
-                } catch (error) {
-                    reject(error);
-                } finally {
-                    // 🛠️ 어떤 일이 있어도 반드시 running을 줄이고 다음 작업을 호출함
-                    running--;
-                    next();// 바로 위에 정의돼 있는 next 라는 함수객체를 실행시킨다.
-                }
-            };
-
-            queue.push(run);
-            next();
-        });
-    };
 }
 
 export default downloadJsonFilesForGraph;
